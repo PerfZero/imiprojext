@@ -2,17 +2,19 @@
 
 set -e
 
+export DEBIAN_FRONTEND=noninteractive
+
 echo "🚀 Начинаю установку всего необходимого на сервере..."
 
 echo "📦 Обновляю систему..."
-apt-get update
+apt-get update -qq
 
 echo "📦 Устанавливаю базовые инструменты..."
-apt-get install -y curl git build-essential python3 nginx
+apt-get install -y -qq curl git build-essential python3 nginx
 
 echo "📦 Устанавливаю Node.js 20.x..."
-curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-apt-get install -y nodejs
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash - > /dev/null 2>&1
+apt-get install -y -qq nodejs
 
 echo "✅ Node.js установлен: $(node --version)"
 echo "✅ npm установлен: $(npm --version)"
@@ -48,13 +50,13 @@ else
     echo "✅ .env файл уже существует"
 fi
 
-echo "📦 Устанавливаю зависимости..."
-npm install
+echo "📦 Устанавливаю зависимости сервера (это может занять несколько минут)..."
+npm install --no-progress --silent || npm install
 
 echo "📁 Создаю папку для данных..."
 mkdir -p data
 
-echo "🔨 Собираю проект..."
+echo "🔨 Собираю сервер (это может занять несколько минут)..."
 npm run build
 
 echo "🚀 Запускаю сервер через PM2..."
@@ -62,9 +64,11 @@ pm2 delete imi-server 2>/dev/null || true
 pm2 start dist/index.js --name imi-server
 pm2 save
 
-echo "📦 Собираю фронтенд..."
+echo "📦 Устанавливаю зависимости фронтенда (это может занять несколько минут)..."
 cd /root/imiprojext/client
-npm install
+npm install --no-progress --silent || npm install
+
+echo "🔨 Собираю фронтенд (это может занять несколько минут)..."
 npm run build
 
 echo "📝 Настраиваю Nginx..."
@@ -114,8 +118,17 @@ NGINX_CONFIG
 
 ln -sf /etc/nginx/sites-available/imiprojext /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
-nginx -t
-systemctl restart nginx
+
+echo "🔍 Проверяю конфигурацию Nginx..."
+if nginx -t > /dev/null 2>&1; then
+    echo "✅ Конфигурация Nginx корректна"
+    systemctl restart nginx
+    echo "✅ Nginx перезапущен"
+else
+    echo "❌ Ошибка в конфигурации Nginx!"
+    nginx -t
+    exit 1
+fi
 
 echo "✅ Сервер запущен!"
 echo "✅ Фронтенд собран!"
