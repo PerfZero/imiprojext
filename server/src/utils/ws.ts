@@ -1,13 +1,13 @@
-const WebSocket = require("ws");
+import { Server } from "http";
+import WebSocket from "ws";
 import { fromNodeHeaders } from "better-auth/node";
-import { auth, authHandler } from "./auth";
+import { auth } from "./auth";
+import { IncomingMessage } from "http";
 
-// Храним подключения пользователей: userId -> WebSocket
-const clients = new Map();
-let wss;
+const clients = new Map<string, WebSocket>();
+let wss: WebSocket.Server | null = null;
 
-// Middleware для проверки сессии через better-auth
-async function getUserFromSession(sessionToken) {
+async function getUserFromSession(sessionToken: string) {
     try {
         // better-auth хранит сессии, получаем пользователя по токену
         const session = await auth.api.getSession({
@@ -26,8 +26,7 @@ async function getUserFromSession(sessionToken) {
 export function createWebSocketServer(server: Server) {
     wss = new WebSocket.Server({ server });
 
-    // WebSocket connection handler
-    wss.on("connection", async (ws, req) => {
+    wss.on("connection", async (ws: WebSocket, req: IncomingMessage) => {
         let userId = null;
         let token = null;
 
@@ -58,7 +57,7 @@ export function createWebSocketServer(server: Server) {
             ws.close();
         }
 
-        ws.on("message", async (message) => {
+        ws.on("message", async (message: WebSocket.Data) => {
             try {
                 const data = JSON.parse(message);
             } catch (error) {
@@ -72,14 +71,14 @@ export function createWebSocketServer(server: Server) {
             }
         });
 
-        ws.on("error", (error) => {
+        ws.on("error", (error: Error) => {
             console.error("WebSocket ошибка:", error);
         });
     });
 }
 
 // Функция для отправки уведомления конкретному пользователю
-export function sendNotificationToUser(userId, notification) {
+export function sendNotificationToUser(userId: string | null | undefined, notification: any) {
     const userWs = clients.get(userId);
     if (userWs && userWs.readyState === WebSocket.OPEN) {
         userWs.send(

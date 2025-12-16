@@ -44,9 +44,9 @@ export function createApp() {
             headers: fromNodeHeaders(req.headers),
         });
 
-        if (session) {
+        if (session && "user" in session && session.user) {
             req.session = session;
-            req.userId = session?.user?.id;
+            req.userId = session.user.id;
         }
         next();
     });

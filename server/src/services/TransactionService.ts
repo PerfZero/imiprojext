@@ -2,7 +2,7 @@ import { eq, and, sql } from "drizzle-orm";
 import { DbClient, transactions } from "../db";
 
 export interface CreateTransactionInput {
-    userId: number;
+    userId: string;
     currency: string;
     amount: number;
     type: string;
@@ -43,7 +43,7 @@ export class TransactionService {
         return record;
     }
 
-    getTransactionsByUser(userId: number) {
+    getTransactionsByUser(userId: string) {
         return this.db.query.transactions.findMany({
             where: eq(transactions.userId, userId),
             orderBy: (fields, { desc }) => desc(fields.createdAt),

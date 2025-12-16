@@ -27,13 +27,18 @@ const purchaseSchema = z.object({
 
 router.post("/deposit", isAuthenticated, async (req, res, next) => {
     try {
+        if (!req.userId) {
+            throw new AppError("User ID not found", 401);
+        }
         const parsed = balanceChangeSchema.safeParse(req.body);
         if (!parsed.success) {
             throw new AppError(parsed.error.message, 400);
         }
-        parsed.data.userId = req.userId;
 
-        const balance = await services.walletService.deposit(parsed.data);
+        const balance = await services.walletService.deposit({
+            ...parsed.data,
+            userId: req.userId,
+        });
         res.status(201).json(balance);
     } catch (err) {
         next(err);
@@ -42,12 +47,17 @@ router.post("/deposit", isAuthenticated, async (req, res, next) => {
 
 router.post("/withdraw", isAuthenticated, async (req, res, next) => {
     try {
+        if (!req.userId) {
+            throw new AppError("User ID not found", 401);
+        }
         const parsed = balanceChangeSchema.safeParse(req.body);
         if (!parsed.success) {
             throw new AppError(parsed.error.message, 400);
         }
-        parsed.data.userId = req.userId;
-        const balance = await services.walletService.withdraw(parsed.data);
+        const balance = await services.walletService.withdraw({
+            ...parsed.data,
+            userId: req.userId,
+        });
         res.json(balance);
     } catch (err) {
         next(err);
@@ -56,14 +66,18 @@ router.post("/withdraw", isAuthenticated, async (req, res, next) => {
 
 router.post("/convert", isAuthenticated, async (req, res, next) => {
     try {
+        if (!req.userId) {
+            throw new AppError("User ID not found", 401);
+        }
         const parsed = convertSchema.safeParse(req.body);
         if (!parsed.success) {
             throw new AppError(parsed.error.message, 400);
         }
 
-        parsed.data.userId = req.userId;
-
-        const balance = await services.walletService.convert(parsed.data);
+        const balance = await services.walletService.convert({
+            ...parsed.data,
+            userId: req.userId,
+        });
         res.json(balance);
     } catch (err) {
         next(err);
@@ -72,12 +86,17 @@ router.post("/convert", isAuthenticated, async (req, res, next) => {
 
 router.post("/purchase", isAuthenticated, async (req, res, next) => {
     try {
+        if (!req.userId) {
+            throw new AppError("User ID not found", 401);
+        }
         const parsed = purchaseSchema.safeParse(req.body);
         if (!parsed.success) {
             throw new AppError(parsed.error.message, 400);
         }
-        parsed.data.userId = req.userId;
-        await services.walletService.purchase(parsed.data);
+        await services.walletService.purchase({
+            ...parsed.data,
+            userId: req.userId,
+        });
         res.status(201).json({ status: "ok" });
     } catch (err) {
         next(err);

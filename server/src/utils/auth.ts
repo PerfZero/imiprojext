@@ -13,7 +13,7 @@ export const auth = betterAuth({
     basePath: "/auth",
     secret: process.env.BETTER_AUTH_SECRET ?? "better-auth-secret-dev",
     emailAndPassword: { enabled: true },
-    plugins: [admin()],
+    plugins: [admin()] as any,
     database: drizzleAdapter(db, {
         provider: "sqlite",
     }),
@@ -65,7 +65,7 @@ export const auth = betterAuth({
                     const updates: Record<string, unknown> = {};
                     updates.referralCode = await generateReferralCode(db);
 
-                    if (data.referrerCode) {
+                    if (data.referrerCode && typeof data.referrerCode === "string") {
                         const referrer = await getUserByReferralCode(
                             db,
                             data.referrerCode
@@ -80,7 +80,7 @@ export const auth = betterAuth({
                     const balances =
                         await services.walletService.createBalances(data.id);
 
-                    if (data.referrerId) {
+                    if (data.referrerId && typeof data.referrerId === "string") {
                         await services.notificationService.createNotification({
                             userId: data.referrerId,
                             category: "mlm",

@@ -102,6 +102,9 @@ router.post(
 
             fs.unlinkSync(tempPath);
 
+            if (!req.userId) {
+                throw new AppError("User ID not found", 401);
+            }
             const url = `/uploads/small-${req.file.filename}`;
             const user = await services.userService.updateAvatar(
                 req.userId,
@@ -117,6 +120,9 @@ router.post(
 
 router.get("/balances", isAuthenticated, async (req, res, next) => {
     try {
+        if (!req.userId) {
+            throw new AppError("User ID not found", 401);
+        }
         const balances = await services.walletService.getBalances(req.userId);
         res.json(balances);
     } catch (err) {
@@ -126,6 +132,9 @@ router.get("/balances", isAuthenticated, async (req, res, next) => {
 
 router.get("/:id/upline", isAuthenticated, async (req, res, next) => {
     try {
+        if (!req.userId) {
+            throw new AppError("User ID not found", 401);
+        }
         const upline = await services.userService.getUpline(req.userId);
         res.json(upline);
     } catch (err) {

@@ -7,6 +7,9 @@ const router = Router();
 
 router.get("/", isAuthenticated, async (req, res, next) => {
     try {
+        if (!req.userId) {
+            throw new AppError("User ID not found", 401);
+        }
         const items = await services.transactionService.getTransactionsByUser(
             req.userId
         );
@@ -18,6 +21,9 @@ router.get("/", isAuthenticated, async (req, res, next) => {
 
 router.get("/incomeByLevel", isAuthenticated, async (req, res, next) => {
     try {
+        if (!req.userId) {
+            throw new AppError("User ID not found", 401);
+        }
         const items = await services.transactionService.getMlmIncomeByLevel(
             req.userId
         );

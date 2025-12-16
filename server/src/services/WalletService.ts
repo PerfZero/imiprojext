@@ -259,7 +259,7 @@ export class WalletService {
         return record;
     }
 
-    private getBalanceRecord(userId: number, currency: string) {
+    private getBalanceRecord(userId: string, currency: string) {
         return this.db.query.walletBalances.findFirst({
             where: and(
                 eq(walletBalances.userId, userId),

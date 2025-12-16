@@ -7,6 +7,9 @@ const router = Router();
 
 router.get("/", isAuthenticated, async (req, res, next) => {
     try {
+        if (!req.userId) {
+            throw new AppError("User ID not found", 401);
+        }
         const items = await services.notificationService.getNotifications(
             req.userId
         );
@@ -18,9 +21,10 @@ router.get("/", isAuthenticated, async (req, res, next) => {
 
 router.post("/markAsReadAll", isAuthenticated, async (req, res, next) => {
     try {
-        const items = await services.notificationService.markAsReadAll(
-            req.userId
-        );
+        if (!req.userId) {
+            throw new AppError("User ID not found", 401);
+        }
+        await services.notificationService.markAsReadAll(req.userId);
         res.json({});
     } catch (err) {
         next(err);
