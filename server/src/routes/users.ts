@@ -1,4 +1,3 @@
-import fs from "fs";
 import { Router } from "express";
 import { isAuthenticated } from "./../utils/isAuthenticated";
 import multer from "multer";
@@ -30,7 +29,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-async function makeSquareAvatar(inputPath, outputPath, targetSize = 256) {
+async function makeSquareAvatar(inputPath: string, outputPath: string, targetSize = 256) {
     // Получаем метаданные исходного изображения
     const metadata = await sharp(inputPath).metadata();
     const { width, height, format } = metadata;

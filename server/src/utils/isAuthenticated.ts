@@ -1,7 +1,9 @@
-export const isAuthenticated = (req, res, next) => {
-    if (req.session.user) {
+import { Request, Response, NextFunction } from "express";
+
+export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+    if (req.session?.user) {
         next();
     } else {
-        res.status(401).send("Unauthorized"); // User is not authenticated
+        res.status(401).send("Unauthorized");
     }
 };

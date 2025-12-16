@@ -31,6 +31,9 @@ export class NotificationService {
     }
 
     getNotifications(userId?: string) {
+        if (!userId) {
+            return Promise.resolve([]);
+        }
         return this.db.query.notifications.findMany({
             where: and(
                 eq(notifications.userId, userId),
@@ -41,9 +44,12 @@ export class NotificationService {
     }
 
     async markAsReadAll(userId?: string) {
-        let result = await this.db
+        if (!userId) {
+            return;
+        }
+        await this.db
             .update(notifications)
-            .set({ is_read: 1 })
+            .set({ is_read: true })
             .where(eq(notifications.userId, userId));
     }
 }

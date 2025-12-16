@@ -17,35 +17,8 @@ import { userRouter } from "./routes/users";
 import { walletRouter } from "./routes/wallet";
 import { errorHandler } from "./utils/errorHandler";
 
-// создание акка админа для тестов
 export async function createAdminIfNotExists() {
-    const adminEmail = process.env.ADMIN_EMAIL || "admin@example.com";
-    const adminPassword = process.env.ADMIN_PASSWORD;
-
-    if (!adminPassword) {
-        console.warn(
-            "⚠️ ADMIN_PASSWORD не установлен в env, пропускаю создание админа"
-        );
-        return;
-    }
-
-    try {
-        // Создаем администратора
-        const { user } = await auth.api.createUser({
-            body: {
-                email: adminEmail,
-                password: adminPassword,
-                name: "Admin",
-                phone: "+7991151565",
-                role: "admin",
-                data: { phone: "+7991151565" },
-            },
-        });
-
-        console.log(`✅ Администратор создан: ${user.id}`);
-    } catch (error) {
-        console.error("❌ Ошибка при создании админа:", error);
-    }
+    console.log("ℹ️ Создание администратора должно быть выполнено вручную через API /api/auth/sign-up");
 }
 
 export function createApp() {
