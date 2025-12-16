@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { eq } from "drizzle-orm";
 
 import { DbClient, User, user as users } from "../db";
@@ -19,15 +20,21 @@ export class UserService {
             ? await this.findReferrerId(input.referrerCode)
             : null;
 
+        const values: any = {
+            id: randomUUID(),
+            name: input.name,
+            email: input.email,
+            phone: input.phone,
+            referralCode,
+        };
+
+        if (referrerId) {
+            values.referrerId = referrerId;
+        }
+
         const result = await this.db
             .insert(users)
-            .values({
-                name: input.name,
-                email: input.email,
-                phone: input.phone ?? "",
-                referrerId: referrerId ?? undefined,
-                referralCode,
-            })
+            .values(values)
             .returning();
 
         if (!result[0]) {
