@@ -59,7 +59,8 @@ export function createWebSocketServer(server: Server) {
 
         ws.on("message", async (message: WebSocket.Data) => {
             try {
-                const data = JSON.parse(message);
+                const messageStr = message.toString();
+                const data = JSON.parse(messageStr);
             } catch (error) {
                 console.error("Ошибка обработки сообщения:", error);
             }
@@ -79,6 +80,9 @@ export function createWebSocketServer(server: Server) {
 
 // Функция для отправки уведомления конкретному пользователю
 export function sendNotificationToUser(userId: string | null | undefined, notification: any) {
+    if (!userId) {
+        return false;
+    }
     const userWs = clients.get(userId);
     if (userWs && userWs.readyState === WebSocket.OPEN) {
         userWs.send(

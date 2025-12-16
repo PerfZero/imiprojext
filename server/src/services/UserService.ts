@@ -6,7 +6,7 @@ import { generateReferralCode } from "../utils/referral";
 export interface CreateUserInput {
     name: string;
     email: string;
-    phone?: string | null | undefined;
+    phone: string;
     referrerCode?: string | undefined;
 }
 
@@ -24,15 +24,17 @@ export class UserService {
             .values({
                 name: input.name,
                 email: input.email,
-                phone: input.phone ?? null,
-                referrerId,
+                phone: input.phone ?? "",
+                referrerId: referrerId ?? undefined,
                 referralCode,
             })
-            .run();
+            .returning();
 
-        const created = await this.getUserById(
-            result.lastInsertRowid as string
-        );
+        if (!result[0]) {
+            throw new Error("Failed to create user");
+        }
+
+        const created = await this.getUserById(result[0].id);
         if (!created) {
             throw new Error("Failed to create user");
         }
