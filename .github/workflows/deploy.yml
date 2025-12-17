@@ -25,6 +25,7 @@ jobs:
             # Backend
             cd server
             npm install
+            npx drizzle-kit push
             npm run build
             
             # Frontend
