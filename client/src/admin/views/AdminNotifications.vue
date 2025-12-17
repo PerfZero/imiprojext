@@ -55,3 +55,4 @@ onMounted(() => loadNotifications());
         />
     </AdminLayout>
 </template>
+

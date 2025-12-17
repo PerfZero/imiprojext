@@ -73,3 +73,4 @@ onMounted(() => loadTransactions());
         />
     </AdminLayout>
 </template>
+

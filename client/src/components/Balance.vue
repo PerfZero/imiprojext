@@ -23,31 +23,10 @@ onNotify((data) => {
 </script>
 
 <template>
-    <!-- balance -->
-    <div class="">
-        <div class="card adminuiux-card bg-theme-r-gradient" style="color: white">
-            <div class="card-header">
-                <h6>Личный счет</h6>
-            </div>
-            <ul class="list-group list-group-flush border-top border-light bg-none">
-                <li v-for="item in balances" class="list-group-item" style="color: white">
-                    <div class="row gx-3 align-items-center">
-                        <div class="col-auto">
-                            <i class="bi bi-currency-dollar avatar avatar-40 h5 rounded-circle border"></i>
-                        </div>
-                        <div class="col">
-                            <p class="small text-secondary"></p>
-                        </div>
-                        <div class="col-auto fs-6 text-end">
-                            <h6>
-                                <Autocounter :count="item.balance" /> {{ item.currency }}
-                            </h6>
-
-                        </div>
-                    </div>
-                </li>
-
-            </ul>
+    <li v-for="item in balances" :key="item.currency" class="nav-item">
+        <div class="nav-link">
+            <i class="menu-icon bi bi-currency-dollar h4"></i>
+            <span class="menu-name"><Autocounter :count="item.balance" /> {{ item.currency }}</span>
         </div>
-    </div>
+    </li>
 </template>

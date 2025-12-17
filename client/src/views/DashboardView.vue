@@ -45,7 +45,7 @@ const btnCopyToClipboardClick = async () => {
 <template>
     <main class="adminuiux-content has-sidebar" onclick="contentClick()">
         <!-- Content  -->
-        <div class="container mt-3" id="main-content">
+        <div class="container pt-4 mt-3" id="main-content">
             <div class="row">
                 <!-- Ваша реф.ссылка -->
                 <div class="col-12 mb-3">

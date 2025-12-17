@@ -78,7 +78,7 @@ watch(
                 </div>
             </div> -->
             <!-- user information -->
-            <div class="px-3 not-iconic" id="usersidebarprofile">
+            <div class="px-3 pt-4 not-iconic" id="usersidebarprofile">
                 <div class="d-flex align-items-center mb-3">
                     <!-- Аватар слева -->
                     <div class="flex-shrink-0 me-3">

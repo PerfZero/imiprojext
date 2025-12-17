@@ -15,7 +15,7 @@ import Notifications from "@/components/Notifications.vue";
     <header class="adminuiux-header inner-page">
 
         <!-- Fixed navbar -->
-        <nav class="navbar fixed-top">
+        <nav class="navbar">
             <div class="container-fluid">
                 <!-- main sidebar toggle -->
                 <button class="btn btn-link btn-square sidebar-toggler ms-1" type="button" onclick="initSidebar()"
