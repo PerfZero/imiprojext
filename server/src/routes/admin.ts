@@ -132,7 +132,13 @@ router.patch("/users/:id", async (req, res) => {
 
 router.delete("/users/:id", async (req, res) => {
     try {
-        await db.delete(user).where(eq(user.id, req.params.id));
+        const userId = req.params.id;
+
+        await db.delete(walletBalances).where(eq(walletBalances.userId, userId));
+        await db.delete(transactions).where(eq(transactions.userId, userId));
+        await db.delete(notifications).where(eq(notifications.userId, userId));
+        await db.delete(user).where(eq(user.id, userId));
+
         res.json({ success: true });
     } catch (error) {
         res.status(500).json({ error: "Failed to delete user" });
