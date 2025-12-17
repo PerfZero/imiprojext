@@ -1,0 +1,41 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            cd /root/imiprojext
+            
+            # Pull latest changes
+            git pull origin main
+            
+            # Backend
+            cd server
+            npm install
+            npm run build
+            
+            # Frontend
+            cd ../client
+            npm install
+            npm run build
+            
+            # Set permissions
+            chmod -R 755 /root/imiprojext/client/dist
+            
+            # Restart backend
+            pm2 restart imi-server
+            
+            echo "Deploy completed!"
