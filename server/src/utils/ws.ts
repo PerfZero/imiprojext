@@ -24,7 +24,7 @@ async function getUserFromSession(sessionToken: string) {
 }
 
 export function createWebSocketServer(server: Server) {
-    wss = new WebSocket.Server({ server });
+    wss = new WebSocket.Server({ server, path: "/socket" });
 
     wss.on("connection", async (ws: WebSocket, req: IncomingMessage) => {
         let userId = null;

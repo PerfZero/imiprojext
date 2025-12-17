@@ -20,3 +20,4 @@ echo "🔄 Перезапускаю Nginx..."
 systemctl restart nginx
 
 echo "✅ Готово! Проверьте: http://$(hostname -I | awk '{print $1}')"
+

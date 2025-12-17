@@ -148,3 +148,4 @@ if [ "$STEP" = "all" ]; then
     echo ""
     echo "⚠️  Выполните: pm2 startup"
 fi
+

@@ -33,3 +33,4 @@ echo ""
 
 echo "8️⃣ Проверка конфигурации Nginx:"
 cat /etc/nginx/sites-available/imiprojext | head -20
+
