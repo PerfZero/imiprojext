@@ -17,6 +17,7 @@ import PaysView from "@/views/PaysView.vue";
 import WithdrawView from "@/views/WithdrawView.vue";
 
 import ShopView from "@/views/ShopView.vue";
+import ProductDetailView from "@/views/ProductDetailView.vue";
 
 import CashbackView from "@/views/CashbackView.vue";
 import LearnView from "@/views/LearnView.vue";
@@ -125,6 +126,11 @@ const router = createRouter({
       path: "/shop",
       name: "shop",
       component: ShopView,
+    },
+    {
+      path: "/shop/:id",
+      name: "product-detail",
+      component: ProductDetailView,
     },
 
     // Projects

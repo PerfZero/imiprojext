@@ -235,14 +235,14 @@ onMounted(() => {
                     :key="product.id"
                     class="col-6 col-md-4 col-lg-3"
                 >
-                    <div class="card mb-3 mb-lg-4 style-none">
-                        <div class="card-body p-1 position-relative">
+                    <div class="card mb-3 mb-lg-4 style-none product-card">
+                        <router-link :to="`/shop/${product.id}`" class="card-body p-1 position-relative d-block text-decoration-none">
                             <div v-if="product.discount" class="position-absolute start-0 top-0 m-2 z-index-1">
                                 <div class="badge badge-sm text-bg-theme-1 theme-green">
                                     {{ product.discount }}% СКИДКА
                                 </div>
                             </div>
-                            <figure class="w-100 height-150 rounded coverimg bg-light d-flex align-items-center justify-content-center">
+                            <figure class="w-100 height-150 rounded coverimg bg-light d-flex align-items-center justify-content-center mb-0">
                                 <img
                                     v-if="product.image"
                                     :src="product.image"
@@ -252,12 +252,14 @@ onMounted(() => {
                                 >
                                 <i v-else class="bi bi-image text-muted display-4"></i>
                             </figure>
-                        </div>
+                        </router-link>
                         <div class="card-body pt-2">
                             <p class="small text-secondary mb-0 text-truncate">
                                 {{ getCategoryName(product.categoryId) || 'Товар' }}
                             </p>
-                            <p class="mb-1 fw-medium text-truncate">{{ product.name }}</p>
+                            <router-link :to="`/shop/${product.id}`" class="mb-1 fw-medium text-truncate d-block text-dark text-decoration-none">
+                                {{ product.name }}
+                            </router-link>
                             <div class="row gx-3 align-items-center">
                                 <div class="col">
                                     <h6 class="mb-0">₽ {{ formatPrice(getDiscountPrice(product)) }}</h6>
@@ -312,5 +314,14 @@ onMounted(() => {
 .categories-scroll .btn {
     flex-shrink: 0;
     white-space: nowrap;
+}
+
+.product-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 </style>
