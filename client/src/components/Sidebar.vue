@@ -1,7 +1,6 @@
 <script setup>
 import { watch } from "vue";
 import { useRoute } from "vue-router";
-import Avatar from "vue-boring-avatars";
 import { authClient } from "@/lib/auth-client";
 const session = authClient.useSession();
 
@@ -81,11 +80,9 @@ watch(
             <RouterLink to="/profile" class="px-3 pt-4 not-iconic d-block text-decoration-none" id="usersidebarprofile">
                 <div class="d-flex align-items-center">
                     <div class="flex-shrink-0 me-3">
-                        <Avatar v-if="!session.data?.user.image" :name="session.data?.user.email" variant="beam"
-                            class="avatar avatar-40 rounded coverimg shadow-sm" />
-                        <figure v-else class="avatar avatar-40 rounded coverimg shadow-sm">
-                            <img :src="session.data?.user.image" alt="Аватар пользователя" id="userphotoonboarding" />
-                        </figure>
+                        <div class="avatar avatar-40 rounded shadow-sm bg-theme-1 d-flex align-items-center justify-content-center">
+                            <i class="bi bi-person-fill text-white" style="font-size: 1.25rem; line-height: 1;"></i>
+                        </div>
                     </div>
                     <div class="flex-grow-1 text-start">
                         <h6 class="mb-1 text-white" id="usernamedisplay">{{ session.data?.user.name }}</h6>

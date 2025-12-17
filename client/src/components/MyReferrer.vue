@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue';
 import { authClient } from "@/lib/auth-client";
 const session = authClient.useSession();
-import Avatar from "vue-boring-avatars";
 import apiService from '@/services/apiService';
 
 const referrer = ref({})
@@ -18,11 +17,8 @@ update()
         <div class="card-body">
             <div class="row gx-3 align-items-center flex-nowrap mb-3">
                 <div class="col-auto">
-                    <div class="avatar avatar-40 rounded-circle coverimg" style="
-                                            background-image: url(/assets/img/template/user-6.jpg);
-                                        ">
-                        <Avatar v-if="!referrer.image" :name="referrer.image" variant="beam" />
-                        <img v-else :src="referrer.image" alt="" style="display: none" />
+                    <div class="avatar avatar-40 rounded-circle bg-theme-1 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-person-fill text-white" style="font-size: 1.25rem; line-height: 1;"></i>
                     </div>
                 </div>
                 <div class="col maxwidth-200">

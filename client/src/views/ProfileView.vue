@@ -1,5 +1,4 @@
 <script setup>
-import Avatar from "vue-boring-avatars";
 import { authClient } from "@/lib/auth-client";
 const session = authClient.useSession();
 
@@ -40,30 +39,16 @@ const session = authClient.useSession();
                     <div class="card bg-none mb-3 mb-lg-4 overflow-hidden">
                         <div class="height-150 w-100 bg-theme-1">
                             <figure class="h-100 w-100 coverimg opacity-50">
-                                <img src="/assets/img/template/splash01.svg" alt="" />
                             </figure>
                         </div>
-                        <div class="card-body pt-0 pt-lg-3">
-                            <div class="row align-items-center">
-                                <!-- userphoto  -->
-                                <div class="col-12 col-md-auto text-center mb-3">
-                                    <Avatar v-if="!session.data?.user.email" :name="session.data?.user.email"
-                                        variant="beam"
-                                        class="avatar avatar-100 rounded coverimg align-middle mx-auto mt--50 z-index-1" />
-                                    <figure v-else
-                                        class="avatar avatar-100 rounded coverimg align-middle mx-auto mt--50 z-index-1">
-                                        <img :src="session.data?.user.image" alt="" />
-                                    </figure>
-                                </div>
-                                <!-- welcome section -->
-                                <div class="col mb-3 mb-lg-4">
-                                    <h4 class="fw-bold text-theme-1 mb-0">
-                                        {{ session.data?.user.name }}
-                                    </h4>
-                                    <p class="small text-secondary">
-                                        Новичок
-                                    </p>
-                                </div>
+                        <div class="card-body pt-3">
+                            <div class="mb-3">
+                                <h4 class="fw-bold text-theme-1 mb-0">
+                                    {{ session.data?.user.name }}
+                                </h4>
+                                <p class="small text-secondary mb-0">
+                                    Новичок
+                                </p>
                             </div>
 
                             <p class="text-truncated">

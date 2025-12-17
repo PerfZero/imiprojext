@@ -1,7 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { useToast } from '@/composables/useToast';
-import Avatar from "vue-boring-avatars";
 import { authClient } from "@/lib/auth-client";
 import apiService from '@/services/apiService';
 
@@ -145,18 +144,8 @@ const updateProfile = async () => {
                 </figure>
                 <div class="card-body text-center text-white z-index-1">
                     <div class="d-inline-block position-relative w-auto mx-auto my-3">
-                        <Avatar v-if="!session.data?.user.image" :name="session.data?.user.email" variant="beam"
-                            class="avatar avatar-150 coverimg rounded-circle" />
-
-                        <figure v-else class="avatar avatar-150 coverimg rounded-circle">
-                            <img :src="session.data?.user.image" alt="">
-                        </figure>
-
-                        <div class="position-absolute bottom-0 end-0 z-index-1 h-auto">
-                            <button @click="uploadPhoto" class="btn btn-theme btn-square">
-                                <i class=" bi bi-camera"></i>
-                            </button>
-                            <input type="file" class="d-none">
+                        <div class="avatar avatar-150 rounded-circle bg-theme-1 d-flex align-items-center justify-content-center">
+                            <i class="bi bi-person-fill text-white" style="font-size: 4rem; line-height: 1;"></i>
                         </div>
                     </div>
                     <h4 class="mb-0">{{ session.data?.user.name }}</h4>

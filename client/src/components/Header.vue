@@ -2,7 +2,6 @@
 import { authClient } from "@/lib/auth-client";
 const session = authClient.useSession();
 const { signOut } = authClient;
-import Avatar from "vue-boring-avatars";
 
 import NavbarApplicationsList from "@/components/NavbarApplicationsList.vue";
 import Notifications from "@/components/Notifications.vue";
@@ -73,11 +72,9 @@ import Notifications from "@/components/Notifications.vue";
                             data-bs-toggle="dropdown" aria-expanded="false" role="button" style="margin-top: -2px">
                             <div class="row gx-0 d-inline-flex">
                                 <div class="col-auto align-self-center">
-                                    <Avatar v-if="!session.data?.user.image" :name="session.data?.user.email"
-                                        variant="beam" class="avatar avatar-28 rounded-circle coverimg align-middle" />
-                                    <figure v-else class="avatar avatar-28 rounded-circle coverimg align-middle">
-                                        <img :src="session.data?.user.image" alt="" id="userphotoonboarding2" />
-                                    </figure>
+                                    <div class="avatar avatar-28 rounded-circle bg-theme-1 d-flex align-items-center justify-content-center">
+                                        <i class="bi bi-person-fill text-white" style="font-size: 1rem; line-height: 1;"></i>
+                                    </div>
                                 </div>
                                 <div class="col align-self-center d-none d-xl-block px-2">
                                     <!-- <span class="mb-0">Иван Иванов</span> -->
@@ -92,12 +89,9 @@ import Notifications from "@/components/Notifications.vue";
                             <div class="bg-theme-1-space rounded py-3 mb-3 dropdown-dontclose">
                                 <div class="row gx-0">
                                     <div class="col-auto px-3">
-                                        <Avatar v-if="!session.data?.user.image" :name="session.data?.user.email"
-                                            variant="beam"
-                                            class="avatar avatar-50 rounded-circle coverimg align-middle" />
-                                        <figure v-else class="avatar avatar-50 rounded-circle coverimg align-middle">
-                                            <img :src="session.data?.user.image" alt="" />
-                                        </figure>
+                                        <div class="avatar avatar-50 rounded-circle bg-theme-1 d-flex align-items-center justify-content-center">
+                                            <i class="bi bi-person-fill text-white" style="font-size: 1.5rem; line-height: 1;"></i>
+                                        </div>
                                     </div>
                                     <div class="col align-self-center">
                                         <p class="mb-1">
