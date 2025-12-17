@@ -24,7 +24,7 @@ import Notifications from "@/components/Notifications.vue";
                 </button>
                 <!-- logo -->
 
-                <RouterLink to="/dashboard" class="navbar-brand" href="template-dashboard.html">
+                <RouterLink to="/dashboard" class="navbar-brand">
                     <!-- <img data-bs-img="light" src="/assets/logo.png" alt="" /> -->
                     <!-- <img data-bs-img="dark" src="/assets/img/logo.svg" alt="" /> -->
                     <div class="d-block ps-2">

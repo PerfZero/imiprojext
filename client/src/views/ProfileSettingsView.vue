@@ -123,9 +123,9 @@ const updateProfile = async () => {
             </div>
             <nav aria-label="breadcrumb" class="breadcrumb-theme mt-3 rounded d-none d-lg-block">
                 <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item bi"><a href="template-dashboard.html"><i
+                    <li class="breadcrumb-item bi"><RouterLink to="/dashboard"><i
                                 class="bi bi-house-door me-2"></i>
-                            Главная</a></li>
+                            Главная</RouterLink></li>
                     <li class="breadcrumb-item bi active" aria-current="page"> Редактировать профиль</li>
                 </ol>
             </nav>

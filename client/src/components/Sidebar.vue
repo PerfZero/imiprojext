@@ -78,9 +78,8 @@ watch(
                 </div>
             </div> -->
             <!-- user information -->
-            <div class="px-3 pt-4 not-iconic" id="usersidebarprofile">
-                <div class="d-flex align-items-center mb-3">
-                    <!-- Аватар слева -->
+            <RouterLink to="/profile" class="px-3 pt-4 not-iconic d-block text-decoration-none" id="usersidebarprofile">
+                <div class="d-flex align-items-center">
                     <div class="flex-shrink-0 me-3">
                         <Avatar v-if="!session.data?.user.image" :name="session.data?.user.email" variant="beam"
                             class="avatar avatar-40 rounded coverimg shadow-sm" />
@@ -88,21 +87,12 @@ watch(
                             <img :src="session.data?.user.image" alt="Аватар пользователя" id="userphotoonboarding" />
                         </figure>
                     </div>
-
-                    <!-- Имя и email справа -->
                     <div class="flex-grow-1 text-start">
-                        <h6 class="mb-1" id="usernamedisplay">{{ session.data?.user.name }}</h6>
-                        <p class="opacity-75 small mb-0">{{ session.data?.user.email }}</p>
+                        <h6 class="mb-1 text-white" id="usernamedisplay">{{ session.data?.user.name }}</h6>
+                        <p class="text-white-50 small mb-0">{{ session.data?.user.email }}</p>
                     </div>
                 </div>
-
-                <!-- Кнопка под блоком -->
-                <div class="d-flex text-start justify-content-center">
-                    <RouterLink to="/profile" class="btn btn-sm btn-outline-info">
-                        <i class="bi bi-person-circle"></i> Профиль
-                    </RouterLink>
-                </div>
-            </div>
+            </RouterLink>
             <hr class="border-1 opacity-20" style="color: white; opacity: 0.1" />
             <!-- user menu navigation -->
             <ul class="nav flex-column menu-active-line">
