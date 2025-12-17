@@ -152,6 +152,12 @@ class ApiService {
             method: "POST",
         });
     }
+
+    async getSession() {
+        return this.request("/api/auth/get-session", {
+            method: "GET",
+        });
+    }
 }
 
 // Экспортируем единственный экземпляр сервиса

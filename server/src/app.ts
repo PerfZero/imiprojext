@@ -15,6 +15,7 @@ import { notificationRouter } from "./routes/notifications";
 import { transactionRouter } from "./routes/transactions";
 import { userRouter } from "./routes/users";
 import { walletRouter } from "./routes/wallet";
+import adminRouter from "./routes/admin";
 import { errorHandler } from "./utils/errorHandler";
 
 export async function createAdminIfNotExists() {
@@ -55,6 +56,7 @@ export function createApp() {
     app.use("/api/wallet", walletRouter);
     app.use("/api/transactions", transactionRouter);
     app.use("/api/notifications", notificationRouter);
+    app.use("/api/admin", adminRouter);
 
     app.use(errorHandler);
     return server;

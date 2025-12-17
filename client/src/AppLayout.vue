@@ -10,7 +10,7 @@ const route = useRoute();
 </script>
 
 <template>
-    <slot v-if="route.meta.requiresAuth === false" />
+    <slot v-if="route.meta.requiresAuth === false || route.meta.requiresAdmin" />
     <div v-else class="app-layout">
         <!-- Header -->
         <Header />

@@ -1,16 +1,14 @@
 import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "@/views/HomeView.vue"; // landing page
-import PageNotFound from "@/views/PageNotFound.vue"; // 404 page
+import HomeView from "@/views/HomeView.vue";
+import PageNotFound from "@/views/PageNotFound.vue";
 
 import DashboardView from "@/views/DashboardView.vue";
 import ProfileView from "@/views/ProfileView.vue";
 import ProfileSettingsView from "@/views/ProfileSettingsView.vue";
 
-//auth
 import LoginView from "@/views/LoginView.vue";
 import SignupView from "@/views/SignupView.vue";
 
-// Wallet
 import WalletView from "@/views/WalletView.vue";
 import ConvertView from "@/views/ConvertView.vue";
 import TopupView from "@/views/TopupView.vue";
@@ -18,10 +16,8 @@ import PayView from "@/views/PayView.vue";
 import PaysView from "@/views/PaysView.vue";
 import WithdrawView from "@/views/WithdrawView.vue";
 
-// Shop
 import ShopView from "@/views/ShopView.vue";
 
-// Projects
 import CashbackView from "@/views/CashbackView.vue";
 import LearnView from "@/views/LearnView.vue";
 import MarketView from "@/views/MarketView.vue";
@@ -31,6 +27,12 @@ import TourView from "@/views/TourView.vue";
 import BotsView from "@/views/BotsView.vue";
 import MobileView from "@/views/MobileView.vue";
 import AunitView from "@/views/AunitView.vue";
+
+import AdminDashboard from "@/admin/views/AdminDashboard.vue";
+import AdminUsers from "@/admin/views/AdminUsers.vue";
+import AdminTransactions from "@/admin/views/AdminTransactions.vue";
+import AdminWallets from "@/admin/views/AdminWallets.vue";
+import AdminNotifications from "@/admin/views/AdminNotifications.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -167,8 +169,60 @@ const router = createRouter({
       name: "aunit",
       component: AunitView,
     },
+    // Admin
+    {
+      path: "/admin",
+      name: "admin-dashboard",
+      component: AdminDashboard,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/users",
+      name: "admin-users",
+      component: AdminUsers,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/transactions",
+      name: "admin-transactions",
+      component: AdminTransactions,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/wallets",
+      name: "admin-wallets",
+      component: AdminWallets,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/notifications",
+      name: "admin-notifications",
+      component: AdminNotifications,
+      meta: { requiresAdmin: true },
+    },
+
     { path: "/:pathMatch(.*)*", name: "not-found", component: PageNotFound },
   ],
+});
+
+router.beforeEach(async (to, from, next) => {
+  if (to.meta.requiresAdmin) {
+    try {
+      const response = await fetch("/api/auth/get-session");
+      const session = await response.json();
+      
+      if (!session || !session.user) {
+        return next({ name: "login" });
+      }
+      
+      if (session.user.role !== "admin") {
+        return next({ name: "dashboard" });
+      }
+    } catch (error) {
+      return next({ name: "login" });
+    }
+  }
+  next();
 });
 
 export default router;
