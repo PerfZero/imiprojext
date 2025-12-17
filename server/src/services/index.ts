@@ -4,6 +4,7 @@ import { NotificationService } from "./NotificationService";
 import { TransactionService } from "./TransactionService";
 import { UserService } from "./UserService";
 import { WalletService } from "./WalletService";
+import { ProductService } from "./ProductService";
 
 export const userService = new UserService(db);
 export const transactionService = new TransactionService(db);
@@ -15,6 +16,7 @@ export const walletService = new WalletService(
     notificationService,
     mlmService
 );
+export const productService = new ProductService(db);
 
 export const services = {
     userService,
@@ -22,4 +24,5 @@ export const services = {
     transactionService,
     notificationService,
     mlmService,
+    productService,
 };

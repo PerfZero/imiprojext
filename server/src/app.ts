@@ -15,6 +15,8 @@ import { notificationRouter } from "./routes/notifications";
 import { transactionRouter } from "./routes/transactions";
 import { userRouter } from "./routes/users";
 import { walletRouter } from "./routes/wallet";
+import { productRouter } from "./routes/products";
+import { uploadRouter } from "./routes/upload";
 import adminRouter from "./routes/admin";
 import { errorHandler } from "./utils/errorHandler";
 
@@ -31,7 +33,7 @@ export function createApp() {
 
     app.use(express.json());
     app.use("/static", express.static(path.join(process.cwd(), "public")));
-    // Раздача статики напрямую из корня /public (например, /uploads/...)
+    app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
     app.use(express.static(path.join(process.cwd(), "public")));
 
     app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -56,6 +58,8 @@ export function createApp() {
     app.use("/api/wallet", walletRouter);
     app.use("/api/transactions", transactionRouter);
     app.use("/api/notifications", notificationRouter);
+    app.use("/api/products", productRouter);
+    app.use("/api/upload", uploadRouter);
     app.use("/api/admin", adminRouter);
 
     app.use(errorHandler);

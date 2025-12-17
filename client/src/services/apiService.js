@@ -158,7 +158,166 @@ class ApiService {
             method: "GET",
         });
     }
+
+    async getCategories() {
+        return this.request("/api/products/categories", {
+            method: "GET",
+        });
+    }
+
+    async getProducts(categoryId) {
+        const url = categoryId
+            ? `/api/products?categoryId=${categoryId}`
+            : "/api/products";
+        return this.request(url, {
+            method: "GET",
+        });
+    }
+
+    async getProduct(id) {
+        return this.request(`/api/products/${id}`, {
+            method: "GET",
+        });
+    }
+
+    async createProduct(data) {
+        return this.request("/api/products", {
+            method: "POST",
+            body: JSON.stringify(data),
+        });
+    }
+
+    async updateProduct(id, data) {
+        return this.request(`/api/products/${id}`, {
+            method: "PUT",
+            body: JSON.stringify(data),
+        });
+    }
+
+    async deleteProduct(id) {
+        return this.request(`/api/products/${id}`, {
+            method: "DELETE",
+        });
+    }
+
+    async createCategory(data) {
+        return this.request("/api/products/categories", {
+            method: "POST",
+            body: JSON.stringify(data),
+        });
+    }
+
+    async updateCategory(id, data) {
+        return this.request(`/api/products/categories/${id}`, {
+            method: "PUT",
+            body: JSON.stringify(data),
+        });
+    }
+
+    async deleteCategory(id) {
+        return this.request(`/api/products/categories/${id}`, {
+            method: "DELETE",
+        });
+    }
+
+    async getAttributes() {
+        return this.request("/api/products/attributes/list", {
+            method: "GET",
+        });
+    }
+
+    async createAttribute(data) {
+        return this.request("/api/products/attributes", {
+            method: "POST",
+            body: JSON.stringify(data),
+        });
+    }
+
+    async deleteAttribute(id) {
+        return this.request(`/api/products/attributes/${id}`, {
+            method: "DELETE",
+        });
+    }
+
+    async getAttributeValues(attributeId) {
+        return this.request(`/api/products/attributes/${attributeId}/values`, {
+            method: "GET",
+        });
+    }
+
+    async createAttributeValue(data) {
+        return this.request("/api/products/attributes/values", {
+            method: "POST",
+            body: JSON.stringify(data),
+        });
+    }
+
+    async deleteAttributeValue(id) {
+        return this.request(`/api/products/attributes/values/${id}`, {
+            method: "DELETE",
+        });
+    }
+
+    async createProductVariant(data) {
+        return this.request("/api/products/variants", {
+            method: "POST",
+            body: JSON.stringify(data),
+        });
+    }
+
+    async deleteProductVariant(id) {
+        return this.request(`/api/products/variants/${id}`, {
+            method: "DELETE",
+        });
+    }
+
+    async setProductAttributes(productId, attributeValueIds) {
+        return this.request(`/api/products/${productId}/attributes`, {
+            method: "PUT",
+            body: JSON.stringify({ attributeValueIds }),
+        });
+    }
+
+    async getProductImages(productId) {
+        return this.request(`/api/products/${productId}/images`, {
+            method: "GET",
+        });
+    }
+
+    async addProductImage(productId, url, isMain = false) {
+        return this.request(`/api/products/${productId}/images`, {
+            method: "POST",
+            body: JSON.stringify({ url, isMain }),
+        });
+    }
+
+    async setMainImage(imageId) {
+        return this.request(`/api/products/images/${imageId}/main`, {
+            method: "PUT",
+        });
+    }
+
+    async deleteProductImage(imageId) {
+        return this.request(`/api/products/images/${imageId}`, {
+            method: "DELETE",
+        });
+    }
+
+    async uploadImage(file) {
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const response = await fetch("/api/upload/image", {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) {
+            throw new Error("Ошибка загрузки файла");
+        }
+
+        return response.json();
+    }
 }
 
-// Экспортируем единственный экземпляр сервиса
 export default new ApiService();

@@ -1,9 +1,42 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import apiService from '@/services/apiService';
 
 const errorMessage = ref('');
 const showError = ref(false);
+
+const initSwipers = () => {
+    const Swiper = window.Swiper;
+    if (!Swiper) return;
+
+    document.querySelectorAll('.swipernav').forEach((el) => {
+        if (!el.swiper) {
+            new Swiper(el, {
+                slidesPerView: 'auto',
+                spaceBetween: 20
+            });
+        }
+    });
+
+    document.querySelectorAll('.swipernavpagination').forEach((el) => {
+        if (!el.swiper) {
+            new Swiper(el, {
+                slidesPerView: 'auto',
+                spaceBetween: 20,
+                pagination: {
+                    el: '.swiper-pagination',
+                    type: 'bullets'
+                }
+            });
+        }
+    });
+};
+
+onMounted(() => {
+    nextTick(() => {
+        initSwipers();
+    });
+});
 
 const buy = async (productName = 'Товар', price = 1000, currency = 'RUB') => {
     showError.value = false;

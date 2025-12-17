@@ -30,6 +30,10 @@ import AunitView from "@/views/AunitView.vue";
 
 import AdminDashboard from "@/admin/views/AdminDashboard.vue";
 import AdminUsers from "@/admin/views/AdminUsers.vue";
+import AdminProducts from "@/admin/views/AdminProducts.vue";
+import AdminProductEdit from "@/admin/views/AdminProductEdit.vue";
+import AdminCategories from "@/admin/views/AdminCategories.vue";
+import AdminAttributes from "@/admin/views/AdminAttributes.vue";
 import AdminTransactions from "@/admin/views/AdminTransactions.vue";
 import AdminWallets from "@/admin/views/AdminWallets.vue";
 import AdminNotifications from "@/admin/views/AdminNotifications.vue";
@@ -180,6 +184,36 @@ const router = createRouter({
       path: "/admin/users",
       name: "admin-users",
       component: AdminUsers,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/products",
+      name: "admin-products",
+      component: AdminProducts,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/products/new",
+      name: "admin-product-new",
+      component: AdminProductEdit,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/products/:id",
+      name: "admin-product-edit",
+      component: AdminProductEdit,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/categories",
+      name: "admin-categories",
+      component: AdminCategories,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/attributes",
+      name: "admin-attributes",
+      component: AdminAttributes,
       meta: { requiresAdmin: true },
     },
     {

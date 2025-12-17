@@ -1,10 +1,11 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
 const router = useRouter();
 const sidebarOpen = ref(true);
+const shopMenuOpen = ref(true);
 
 const menuItems = [
     { path: "/admin", icon: "bi-speedometer2", label: "Дашборд" },
@@ -14,11 +15,21 @@ const menuItems = [
     { path: "/admin/notifications", icon: "bi-bell", label: "Уведомления" },
 ];
 
+const shopMenuItems = [
+    { path: "/admin/products", icon: "bi-box-seam", label: "Товары" },
+    { path: "/admin/categories", icon: "bi-folder", label: "Категории" },
+    { path: "/admin/attributes", icon: "bi-tags", label: "Атрибуты" },
+];
+
 const isActive = (path) => {
     if (path === "/admin") {
         return route.path === "/admin";
     }
     return route.path.startsWith(path);
+};
+
+const isShopActive = () => {
+    return shopMenuItems.some(item => route.path.startsWith(item.path));
 };
 
 const goBack = () => {
@@ -50,6 +61,31 @@ const goBack = () => {
                     <i :class="item.icon" class="fs-5"></i>
                     <span v-if="sidebarOpen" class="ms-2">{{ item.label }}</span>
                 </router-link>
+
+                <div class="shop-menu mt-2">
+                    <button
+                        class="nav-link d-flex align-items-center p-2 rounded mb-1 w-100 text-start"
+                        :class="{ active: isShopActive() }"
+                        @click="shopMenuOpen = !shopMenuOpen"
+                    >
+                        <i class="bi bi-shop fs-5"></i>
+                        <span v-if="sidebarOpen" class="ms-2 flex-grow-1">Магазин</span>
+                        <i v-if="sidebarOpen" :class="shopMenuOpen ? 'bi-chevron-up' : 'bi-chevron-down'" class="fs-6"></i>
+                    </button>
+                    <div v-show="shopMenuOpen && sidebarOpen" class="submenu ps-3">
+                        <router-link
+                            v-for="item in shopMenuItems"
+                            :key="item.path"
+                            :to="item.path"
+                            class="nav-link d-flex align-items-center p-2 rounded mb-1"
+                            :class="{ active: isActive(item.path) }"
+                        >
+                            <i :class="item.icon" class="fs-6"></i>
+                            <span class="ms-2">{{ item.label }}</span>
+                        </router-link>
+                    </div>
+                </div>
+
                 <hr class="border-secondary my-3" />
                 <button class="nav-link d-flex align-items-center p-2 rounded w-100 text-start" @click="goBack">
                     <i class="bi bi-arrow-left fs-5"></i>
@@ -83,6 +119,8 @@ const goBack = () => {
     color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
     transition: all 0.2s;
+    border: none;
+    background: none;
 }
 
 .admin-sidebar .nav-link:hover {
@@ -95,10 +133,13 @@ const goBack = () => {
     background: var(--bs-primary);
 }
 
+.admin-sidebar .submenu .nav-link {
+    font-size: 0.9rem;
+}
+
 .admin-content {
     overflow-y: auto;
     max-height: 100vh;
 }
 </style>
-
 
