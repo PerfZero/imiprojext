@@ -154,7 +154,7 @@ watch(
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle op" data-bs-toggle="dropdown" aria-expanded="false"
                         role="button">
-                        <i class="menu-icon bi bi-cash-stack"></i>
+                        <i class="menu-icon bi bi-shop"></i>
                         <div class="col menu-name">Магазин</div>
                     </a>
                     <ul class="dropdown-menu show">
