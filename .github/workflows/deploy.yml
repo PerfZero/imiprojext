@@ -26,6 +26,7 @@ jobs:
             cd server
             npm install
             npx drizzle-kit push
+            npx tsx src/scripts/seed-categories.ts
             npm run build
             
             # Frontend
