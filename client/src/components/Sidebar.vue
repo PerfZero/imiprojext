@@ -102,7 +102,7 @@ watch(
                         <i class="menu-icon bi bi-cash-stack"></i>
                         <div class="col menu-name">Кошелек</div>
                     </a>
-                    <ul class="dropdown-menu show">
+                    <ul class="dropdown-menu">
                         <Balance />
 
                         <!-- <li class="nav-item">
@@ -157,7 +157,7 @@ watch(
                         <i class="menu-icon bi bi-shop"></i>
                         <div class="col menu-name">Магазин</div>
                     </a>
-                    <ul class="dropdown-menu show">
+                    <ul class="dropdown-menu">
 
                         <li class="nav-item">
                             <RouterLink to="/shop" class="nav-link">
