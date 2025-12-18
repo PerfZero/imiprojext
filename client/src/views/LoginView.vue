@@ -2,13 +2,15 @@
 import { ref } from "vue";
 import { authClient } from "@/lib/auth-client";
 import { z } from "zod";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const { signIn, signUp, useSession } = authClient;
 
-// Zod validation schema
 const loginSchema = z.object({
-    email: z.string().email("Некорректный email адрес"),
-    password: z.string().min(1, "Пароль обязателен")
+    email: z.string().min(1, "Email обязателен").email("Некорректный email адрес"),
+    password: z.string().min(1, "Пароль обязателен").min(8, "Пароль должен содержать не менее 8 символов")
 });
 
 const loginData = ref({
@@ -126,6 +128,9 @@ function togglePasswordVisibility(fieldId) {
                         <div class="row h-100 align-items-center justify-content-center">
                             <div class="col-12 col-sm-8 col-md-11 col-xl-11 col-xxl-10 login-box">
                                 <div class="text-center mb-4">
+                                    <button @click="router.push('/')" class="btn btn-link text-start mb-3 p-0">
+                                        <i class="bi bi-arrow-left me-2"></i>Назад
+                                    </button>
                                     <h1 class="display-4 fw-bold mb-1">
                                         Вход
                                     </h1>
@@ -168,11 +173,22 @@ function togglePasswordVisibility(fieldId) {
                                         <a href="/forgot-password" class="btn btn-link ">Забыли пароль?</a>
                                     </div>
                                 </div> -->
-                                <div class="row gx-3 align-items-center mb-4">
+                                <div class="row gx-3 align-items-center mb-3">
                                     <div class="col">
                                         <button class="btn btn-lg btn-accent w-100" @click="login"
-                                            :disabled="isLoading">Войти</button>
+                                            :disabled="isLoading">
+                                            <span v-if="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+                                            Войти
+                                        </button>
                                     </div>
+                                </div>
+                                <div class="text-center">
+                                    <p class="mb-0">
+                                        Нет аккаунта?
+                                        <RouterLink to="/signup" class="text-primary text-decoration-none fw-bold">
+                                            Зарегистрироваться
+                                        </RouterLink>
+                                    </p>
                                 </div>
                             </div>
                         </div>
