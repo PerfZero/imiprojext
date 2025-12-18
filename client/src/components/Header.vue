@@ -1,4 +1,5 @@
 <script setup>
+import { ref, onMounted } from "vue";
 import { authClient } from "@/lib/auth-client";
 const session = authClient.useSession();
 const { signOut } = authClient;
@@ -6,63 +7,75 @@ const { signOut } = authClient;
 import NavbarApplicationsList from "@/components/NavbarApplicationsList.vue";
 import Notifications from "@/components/Notifications.vue";
 
+const searchOpen = ref(false);
 
+const openSearch = () => {
+    searchOpen.value = true;
+    setTimeout(() => {
+        const searchInput = document.querySelector('.adminuiux-search-full input');
+        if (searchInput) {
+            searchInput.focus();
+        }
+    }, 100);
+};
+
+const closeSearch = () => {
+    searchOpen.value = false;
+};
+
+onMounted(() => {
+    if (typeof window !== 'undefined') {
+        window.openSearch = openSearch;
+        window.closeSearch = closeSearch;
+    }
+});
 </script>
 
 <template>
-    <!-- standard header -->
     <header class="adminuiux-header inner-page">
-
-        <!-- Fixed navbar -->
-        <nav class="navbar">
+        <nav class="navbar fixed-top">
             <div class="container-fluid">
-                <!-- main sidebar toggle -->
-                <button class="btn btn-link btn-square sidebar-toggler ms-1" type="button" onclick="initSidebar()"
-                    id="sidebar-toggler">
-                    <i class="sidebar-svg" data-feather="menu"></i>
+                <button class="btn btn-link btn-square sidebar-toggler ms-1" type="button" onclick="initSidebar()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu sidebar-svg">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
                 </button>
-                <!-- logo -->
 
                 <RouterLink to="/dashboard" class="navbar-brand">
-                    <!-- <img data-bs-img="light" src="/assets/logo.png" alt="" /> -->
-                    <!-- <img data-bs-img="dark" src="/assets/img/logo.svg" alt="" /> -->
                     <div class="d-block ps-2">
-                        <span class="h5"><span class="fw-bold">IMI CLUB</span></span>
+                        <span class="h5">IMI <span class="fw-bold">CLUB</span></span>
                         <p class="company-tagline">Делаем жизнь лучше</p>
                     </div>
                 </RouterLink>
-                <!-- right icons button -->
+
                 <div class="ms-auto">
-                    <!-- dark mode -->
-                    <!-- <button
-                        class="btn btn-link btn-square btnsunmoon btn-link-header"
-                        id="btn-layout-modes-dark-page"
-                    >
-                        <i class="sun mx-auto" data-feather="sun"></i>
-                        <i class="moon mx-auto" data-feather="moon"></i>
-                    </button> -->
+                    <button class="btn btn-link btn-square btn-icon btn-link-header" type="button" @click="openSearch">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </button>
 
-                    <!-- application list dropdown -->
+                    <button class="btn btn-link btn-square btnsunmoon btn-link-header" id="btn-layout-modes-dark-page">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-sun sun mx-auto">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-moon moon mx-auto">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+
                     <NavbarApplicationsList />
-
-                    <!-- notification dropdown -->
-                    <!-- <button
-                        class="btn btn-link btn-square btn-icon btn-link-header dropdown-toggle position-relative no-caret"
-                        type="button"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#view-notification"
-                        aria-expanded="false"
-                    >
-                        <i data-feather="bell"></i>
-                        <span
-                            class="position-absolute top-0 end-0 badge rounded-pill bg-danger p-1"
-                        >
-                            <small>9+</small>
-                            <span class="visually-hidden">unread messages</span>
-                        </span>
-                    </button> -->
-
-                    <!-- notification dropdown -->
 
                     <Notifications />
 
@@ -172,5 +185,138 @@ import Notifications from "@/components/Notifications.vue";
                 </div>
             </div>
         </nav>
+
+        <div class="adminuiux-search-full" :class="{ 'show': searchOpen }">
+            <div class="row gx-2 align-items-center">
+                <div class="col-auto">
+                    <button class="btn btn-link btn-square" type="button" @click="closeSearch">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                    </button>
+                </div>
+                <div class="col">
+                    <input class="form-control pe-0 border-0" type="search" placeholder="Введите запрос для поиска...">
+                </div>
+                <div class="col-auto">
+                    <div class="dropdown input-group-text border-0 p-0">
+                        <button class="dropdown-toggle btn btn-link btn-square no-caret" type="button" id="searchfilter" data-bs-toggle="dropdown" aria-expanded="false">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-sliders">
+                                <line x1="4" y1="21" x2="4" y2="14"></line>
+                                <line x1="4" y1="10" x2="4" y2="3"></line>
+                                <line x1="12" y1="21" x2="12" y2="12"></line>
+                                <line x1="12" y1="8" x2="12" y2="3"></line>
+                                <line x1="20" y1="21" x2="20" y2="16"></line>
+                                <line x1="20" y1="12" x2="20" y2="3"></line>
+                                <line x1="1" y1="14" x2="7" y2="14"></line>
+                                <line x1="9" y1="8" x2="15" y2="8"></line>
+                                <line x1="17" y1="16" x2="23" y2="16"></line>
+                            </svg>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end dropdown-dontclose width-300">
+                            <ul class="nav adminuiux-nav" id="searchtab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="searchall-tab" data-bs-toggle="tab" data-bs-target="#searchall" type="button" role="tab">Все</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="searchproducts-tab" data-bs-toggle="tab" data-bs-target="#searchproducts" type="button" role="tab">Товары</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="searchusers-tab" data-bs-toggle="tab" data-bs-target="#searchusers" type="button" role="tab">Пользователи</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content py-3" id="searchtabContent">
+                                <div class="tab-pane fade active show" id="searchall" role="tabpanel">
+                                    <ul class="list-group adminuiux-list-group list-group-flush bg-none">
+                                        <li class="list-group-item">
+                                            <div class="row gx-3">
+                                                <div class="col">Поиск по приложениям</div>
+                                                <div class="col-auto">
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" role="switch" id="searchswitch1">
+                                                        <label class="form-check-label" for="searchswitch1"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item">
+                                            <div class="row gx-3">
+                                                <div class="col">Включать страницы</div>
+                                                <div class="col-auto">
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" role="switch" id="searchswitch2" checked>
+                                                        <label class="form-check-label" for="searchswitch2"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="tab-pane fade" id="searchproducts" role="tabpanel">
+                                    <ul class="list-group adminuiux-list-group list-group-flush bg-none">
+                                        <li class="list-group-item">
+                                            <div class="row gx-3">
+                                                <div class="col">Активные товары</div>
+                                                <div class="col-auto">
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" role="switch" id="searchswitch3" checked>
+                                                        <label class="form-check-label" for="searchswitch3"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="tab-pane fade" id="searchusers" role="tabpanel">
+                                    <ul class="list-group adminuiux-list-group list-group-flush bg-none">
+                                        <li class="list-group-item">
+                                            <div class="row gx-3">
+                                                <div class="col">С email</div>
+                                                <div class="col-auto">
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" role="switch" id="searchswitch4">
+                                                        <label class="form-check-label" for="searchswitch4"></label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="px-2 pb-2">
+                                <div class="row gx-3">
+                                    <div class="col">
+                                        <button class="btn btn-sm btn-theme">Применить</button>
+                                    </div>
+                                    <div class="col-auto">
+                                        <button class="btn btn-sm btn-link theme-red" @click="closeSearch">Отмена</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </header>
 </template>
+
+<style scoped>
+.adminuiux-search-full {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    z-index: 1050;
+    padding: 1rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transform: translateY(-100%);
+    transition: transform 0.3s ease;
+}
+
+.adminuiux-search-full.show {
+    transform: translateY(0);
+}
+</style>
