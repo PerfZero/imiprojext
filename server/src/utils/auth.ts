@@ -18,6 +18,8 @@ export const auth = betterAuth({
         provider: "sqlite",
     }),
     trustedOrigins: [
+        "https://imiclub.pro",
+        "http://imiclub.pro",
         "https://demka.space",
         "http://192.168.31.13:5173",
         "http://localhost:5173",
