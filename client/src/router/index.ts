@@ -1,45 +1,46 @@
 import { createRouter, createWebHistory } from "vue-router";
-import HomeView from "@/views/HomeView.vue";
-import PageNotFound from "@/views/PageNotFound.vue";
 
-import DashboardView from "@/views/DashboardView.vue";
-import ProfileView from "@/views/ProfileView.vue";
-import ProfileSettingsView from "@/views/ProfileSettingsView.vue";
-import ReferralView from "@/views/ReferralView.vue";
+const HomeView = () => import("@/views/HomeView.vue");
+const PageNotFound = () => import("@/views/PageNotFound.vue");
 
-import LoginView from "@/views/LoginView.vue";
-import SignupView from "@/views/SignupView.vue";
+const DashboardView = () => import("@/views/DashboardView.vue");
+const ProfileView = () => import("@/views/ProfileView.vue");
+const ProfileSettingsView = () => import("@/views/ProfileSettingsView.vue");
+const ReferralView = () => import("@/views/ReferralView.vue");
 
-import WalletView from "@/views/WalletView.vue";
-import ConvertView from "@/views/ConvertView.vue";
-import TopupView from "@/views/TopupView.vue";
-import PayView from "@/views/PayView.vue";
-import PaysView from "@/views/PaysView.vue";
-import WithdrawView from "@/views/WithdrawView.vue";
+const LoginView = () => import("@/views/LoginView.vue");
+const SignupView = () => import("@/views/SignupView.vue");
 
-import ShopView from "@/views/ShopView.vue";
-import ProductDetailView from "@/views/ProductDetailView.vue";
+const WalletView = () => import("@/views/WalletView.vue");
+const ConvertView = () => import("@/views/ConvertView.vue");
+const TopupView = () => import("@/views/TopupView.vue");
+const PayView = () => import("@/views/PayView.vue");
+const PaysView = () => import("@/views/PaysView.vue");
+const WithdrawView = () => import("@/views/WithdrawView.vue");
 
-import CashbackView from "@/views/CashbackView.vue";
-import LearnView from "@/views/LearnView.vue";
-import MarketView from "@/views/MarketView.vue";
-import AustoreView from "@/views/AustoreView.vue";
-import WuletView from "@/views/WuletView.vue";
-import TourView from "@/views/TourView.vue";
-import BotsView from "@/views/BotsView.vue";
-import MobileView from "@/views/MobileView.vue";
-import AunitView from "@/views/AunitView.vue";
+const ShopView = () => import("@/views/ShopView.vue");
+const ProductDetailView = () => import("@/views/ProductDetailView.vue");
 
-import AdminDashboard from "@/admin/views/AdminDashboard.vue";
-import AdminUsers from "@/admin/views/AdminUsers.vue";
-import AdminProducts from "@/admin/views/AdminProducts.vue";
-import AdminProductEdit from "@/admin/views/AdminProductEdit.vue";
-import AdminCategories from "@/admin/views/AdminCategories.vue";
-import AdminAttributes from "@/admin/views/AdminAttributes.vue";
-import AdminTransactions from "@/admin/views/AdminTransactions.vue";
-import AdminWallets from "@/admin/views/AdminWallets.vue";
-import AdminNotifications from "@/admin/views/AdminNotifications.vue";
-import AdminReferrals from "@/admin/views/AdminReferrals.vue";
+const CashbackView = () => import("@/views/CashbackView.vue");
+const LearnView = () => import("@/views/LearnView.vue");
+const MarketView = () => import("@/views/MarketView.vue");
+const AustoreView = () => import("@/views/AustoreView.vue");
+const WuletView = () => import("@/views/WuletView.vue");
+const TourView = () => import("@/views/TourView.vue");
+const BotsView = () => import("@/views/BotsView.vue");
+const MobileView = () => import("@/views/MobileView.vue");
+const AunitView = () => import("@/views/AunitView.vue");
+
+const AdminDashboard = () => import("@/admin/views/AdminDashboard.vue");
+const AdminUsers = () => import("@/admin/views/AdminUsers.vue");
+const AdminProducts = () => import("@/admin/views/AdminProducts.vue");
+const AdminProductEdit = () => import("@/admin/views/AdminProductEdit.vue");
+const AdminCategories = () => import("@/admin/views/AdminCategories.vue");
+const AdminAttributes = () => import("@/admin/views/AdminAttributes.vue");
+const AdminTransactions = () => import("@/admin/views/AdminTransactions.vue");
+const AdminWallets = () => import("@/admin/views/AdminWallets.vue");
+const AdminNotifications = () => import("@/admin/views/AdminNotifications.vue");
+const AdminReferrals = () => import("@/admin/views/AdminReferrals.vue");
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
