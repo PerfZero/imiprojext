@@ -118,8 +118,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <main class="adminuiux-content has-sidebar" onclick="contentClick()">
-        <div v-if="loading" class="container mt-5 text-center">
+    <div v-if="loading" class="container mt-5 text-center">
             <div class="spinner-border text-primary"></div>
             <p class="mt-2 text-muted">Загрузка...</p>
         </div>
@@ -330,7 +329,6 @@ onMounted(() => {
             <p class="mt-3">Товар не найден</p>
             <router-link to="/shop" class="btn btn-primary">Вернуться в магазин</router-link>
         </div>
-    </main>
 </template>
 
 <style scoped>

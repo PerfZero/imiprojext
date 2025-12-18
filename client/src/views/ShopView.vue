@@ -146,8 +146,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <main class="adminuiux-content has-sidebar" onclick="contentClick()">
-        <div class="container mt-3" id="main-content">
+    <div class="container mt-3" id="main-content">
 
             <div v-if="showError" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
                 <strong><i class="bi bi-exclamation-triangle me-1"></i>Ошибка</strong>
@@ -293,7 +292,6 @@ onMounted(() => {
             </div>
 
         </div>
-    </main>
 </template>
 
 <style scoped>

@@ -1,0 +1,29 @@
+#!/usr/bin/expect -f
+
+set timeout 30
+set server "79.174.77.143"
+set user "root"
+set password "3kjA70rMecWhsh9i"
+
+spawn ssh -o StrictHostKeyChecking=no $user@$server
+expect {
+    "password:" {
+        send "$password\r"
+    }
+    "yes/no" {
+        send "yes\r"
+        expect "password:"
+        send "$password\r"
+    }
+}
+
+expect "# "
+send "uname -a\r"
+expect "# "
+send "pwd\r"
+expect "# "
+send "which nginx node pm2 git\r"
+expect "# "
+send "ls -la /root/imiprojext 2>/dev/null || echo 'Проект не найден'\r"
+expect "# "
+interact

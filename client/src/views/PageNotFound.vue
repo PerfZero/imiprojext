@@ -1,9 +1,5 @@
 <template>
-    <main
-        class="adminuiux-content has-sidebar vh-100 d-flex align-items-center justify-content-center"
-        onclick="contentClick()"
-    >
-        <!-- Content  -->
+    <div class="vh-100 d-flex align-items-center justify-content-center">
         <h1>404</h1>
-    </main>
+    </div>
 </template>

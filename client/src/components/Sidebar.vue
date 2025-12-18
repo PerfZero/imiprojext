@@ -53,9 +53,7 @@ watch(
 </script>
 
 <template>
-    <!-- Standard sidebar -->
-    <!-- Standard sidebar -->
-    <div class="adminuiux-sidebar shadow-sm" id="sidebar">
+    <div class="adminuiux-sidebar shadow-sm" id="sidebar" style="padding-top: 68px;">
         <div class="adminuiux-sidebar-inner">
             <!-- <div class="px-3 not-iconic mt-3">
                 <div class="row gx-3 gx-lg-4">

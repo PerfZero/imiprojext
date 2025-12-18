@@ -59,8 +59,7 @@ const handleAmountChange = () => {
 </script>
 
 <template>
-    <main class="adminuiux-content has-sidebar" onclick="contentClick()">
-        <!-- page title -->
+    <!-- page title -->
         <div class="container-fluid py-3">
             <div class="row gx-3 align-items-center page-title">
                 <div class="col col-sm">
@@ -145,5 +144,4 @@ const handleAmountChange = () => {
                 </div>
             </div>
         </div>
-    </main>
 </template>

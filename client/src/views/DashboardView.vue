@@ -2,8 +2,7 @@
     </script>
 
 <template>
-    <main class="adminuiux-content has-sidebar" onclick="contentClick()">
-        <div class="container pt-4 mt-3" id="main-content">
+    <div class="container pt-4 mt-3" id="main-content">
             <div class="row mb-4">
                 <div class="col-12">
                     <h3 class="mb-2">Добро пожаловать!</h3>
@@ -78,7 +77,6 @@
                 </div>
             </div>
         </div>
-    </main>
 </template>
 
 <style scoped>

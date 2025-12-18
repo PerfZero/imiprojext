@@ -17,7 +17,9 @@ const route = useRoute();
 
         <div class="adminuiux-wrap">
             <Sidebar />
-            <slot />
+            <main class="adminuiux-content has-sidebar" onclick="contentClick()" style="padding-top: 68px;">
+                <slot />
+            </main>
         </div>
 
         <!-- theming offcanvas-->

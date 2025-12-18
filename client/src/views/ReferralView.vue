@@ -89,8 +89,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <main class="adminuiux-content has-sidebar" onclick="contentClick()">
-        <div class="container pt-4 mt-3" id="main-content">
+    <div class="container pt-4 mt-3" id="main-content">
             <div class="row mb-4">
                 <div class="col-12">
                     <h4 class="mb-0">Реферальная программа</h4>
@@ -204,7 +203,6 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-    </main>
 </template>
 
 <style></style>

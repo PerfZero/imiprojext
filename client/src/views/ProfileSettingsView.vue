@@ -109,8 +109,7 @@ const updateProfile = async () => {
 </script>
 
 <template>
-    <main class="adminuiux-content has-sidebar" onclick="contentClick()">
-        <!-- page title -->
+    <!-- page title -->
         <div class="container-fluid py-3">
             <div class="row gx-3 align-items-center page-title">
                 <div class="col col-sm">
@@ -189,5 +188,4 @@ const updateProfile = async () => {
                 <div class="col-auto"><button class="btn btn-link theme-red">Отмена</button></div>
             </div>
         </div>
-    </main>
 </template>
