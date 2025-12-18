@@ -23,33 +23,45 @@ export function useNotifications() {
     };
 
     const connectWebSocket = () => {
-        // Замени на свой URL
+        if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) {
+            return;
+        }
 
         const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
         const host = window.location.host;
-        ws = new WebSocket(`${protocol}//${host}/socket`);
+        const wsUrl = `${protocol}//${host}/socket`;
+        
+        console.log("Подключение к WebSocket:", wsUrl);
+        ws = new WebSocket(wsUrl);
 
-        ws.onopen = () => {};
+        ws.onopen = () => {
+            console.log("WebSocket подключен");
+        };
 
         ws.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
+                console.log("WebSocket сообщение получено:", data);
+
+                if (data.type === "auth_success") {
+                    console.log("WebSocket авторизация успешна");
+                } else if (data.type === "auth_error") {
+                    console.error("WebSocket ошибка авторизации:", data.message);
+                    ws.close();
+                    return;
+                }
 
                 subscribers.forEach((item) => {
                     item(data);
                 });
 
-                // Проверяем тип сообщения
                 if (data.type === "new_notification") {
-                    notifications.value.unshift(data.notification);
-                    // Проверка на дубликаты
-                    /* const exists = notifications.value.some(
+                    const exists = notifications.value.some(
                         (n) => n.id === data.notification.id
                     );
                     if (!exists) {
                         notifications.value.unshift(data.notification);
-                        // Здесь можно показать toast уведомление
-                    } */
+                    }
                 }
             } catch (error) {
                 console.error("Ошибка парсинга сообщения:", error);
@@ -67,7 +79,10 @@ export function useNotifications() {
                 "мс"
             );
 
-            // Автоматическое переподключение
+            if (reconnectTimeout) {
+                clearTimeout(reconnectTimeout);
+            }
+
             reconnectTimeout = setTimeout(() => {
                 connectWebSocket();
             }, RECONNECT_DELAY);

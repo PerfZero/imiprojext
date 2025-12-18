@@ -25,33 +25,47 @@ async function getUserFromSession(sessionToken: string) {
 
 export function createWebSocketServer(server: Server) {
     wss = new WebSocket.Server({ server, path: "/socket" });
+    console.log("WebSocket сервер запущен на пути /socket");
 
     wss.on("connection", async (ws: WebSocket, req: IncomingMessage) => {
+        console.log("Новое WebSocket подключение");
         let userId = null;
         let token = null;
 
-        const session = await auth.api.getSession({
-            headers: fromNodeHeaders(req.headers),
-        });
+        try {
+            const session = await auth.api.getSession({
+                headers: fromNodeHeaders(req.headers),
+            });
 
-        if (session && session.user) {
-            userId = session.user?.id;
-            token = session.session?.token;
+            if (session && session.user) {
+                userId = session.user?.id;
+                token = session.session?.token;
 
-            clients.set(userId, ws);
+                clients.set(userId, ws);
+                console.log(`WebSocket подключен для пользователя: ${userId}`);
 
-            // Отправляем подтверждение
-            ws.send(
-                JSON.stringify({
-                    type: "auth_success",
-                    userId: userId,
-                })
-            );
-        } else {
+                ws.send(
+                    JSON.stringify({
+                        type: "auth_success",
+                        userId: userId,
+                    })
+                );
+            } else {
+                console.log("WebSocket: сессия не найдена");
+                ws.send(
+                    JSON.stringify({
+                        type: "auth_error",
+                        message: "Неверный токен",
+                    })
+                );
+                ws.close();
+            }
+        } catch (error) {
+            console.error("WebSocket ошибка авторизации:", error);
             ws.send(
                 JSON.stringify({
                     type: "auth_error",
-                    message: "Неверный токен",
+                    message: "Ошибка авторизации",
                 })
             );
             ws.close();
