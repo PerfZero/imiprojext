@@ -103,6 +103,9 @@ const formatPrice = (price) => {
 
 const getDiscountPrice = (product) => {
     if (!product.discount) return product.price;
+    if (product.discountType === "fixed") {
+        return Math.max(0, product.price - product.discount);
+    }
     return Math.round(product.price * (1 - product.discount / 100));
 };
 
@@ -180,7 +183,11 @@ onMounted(() => {
                                 <div class="row gx-3 align-items-center">
                                     <div class="col">
                                         <div class="position-relative">
-                                            <h3 class="mb-0">{{ product.discount }}% СКИДКА</h3>
+                                            <h3 class="mb-0">
+                                                <span v-if="product.discountType === 'fixed'">-₽ {{ formatPrice(product.discount) }}</span>
+                                                <span v-else>-{{ product.discount }}%</span>
+                                                СКИДКА
+                                            </h3>
                                             <p>{{ product.name }}</p>
                                             <span class="badge bg-light text-dark">₽ {{ formatPrice(getDiscountPrice(product)) }}</span>
                                         </div>
@@ -239,7 +246,8 @@ onMounted(() => {
                         <router-link :to="`/shop/${product.id}`" class="card-body p-1 position-relative d-block text-decoration-none">
                             <div v-if="product.discount" class="position-absolute start-0 top-0 m-2 z-index-1">
                                 <div class="badge badge-sm text-bg-theme-1 theme-green">
-                                    {{ product.discount }}% СКИДКА
+                                    <span v-if="product.discountType === 'fixed'">-₽ {{ formatPrice(product.discount) }}</span>
+                                    <span v-else>-{{ product.discount }}%</span>
                                 </div>
                             </div>
                             <figure class="w-100 height-150 rounded coverimg bg-light d-flex align-items-center justify-content-center mb-0">

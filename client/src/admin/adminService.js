@@ -48,6 +48,19 @@ const adminService = {
         const query = new URLSearchParams(params).toString();
         return apiService.request(`/api/admin/notifications?${query}`);
     },
+
+    async getReferrals(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return apiService.request(`/api/admin/referrals?${query}`);
+    },
+
+    async getReferralStats() {
+        return apiService.request("/api/admin/referrals/stats");
+    },
+
+    async getUserReferrals(userId) {
+        return apiService.request(`/api/admin/referrals/user/${userId}`);
+    },
 };
 
 export default adminService;

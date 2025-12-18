@@ -155,17 +155,22 @@ watch(
                         <div class="col menu-name">Магазин</div>
                     </a>
                     <ul class="dropdown-menu">
-
                         <li class="nav-item">
                             <RouterLink to="/shop" class="nav-link">
                                 <i class="menu-icon bi bi-cart h4"></i>
                                 <span class="menu-name">Потратить деньги</span>
                             </RouterLink>
                         </li>
-
                     </ul>
+                </li>
+            </ul>
 
-
+            <ul class="nav flex-column menu-active-line">
+                <li class="nav-item">
+                    <RouterLink to="/referral" class="nav-link">
+                        <i class="menu-icon bi bi-diagram-3"></i>
+                        <span class="menu-name">Реферальная программа</span>
+                    </RouterLink>
                 </li>
             </ul>
         </div>

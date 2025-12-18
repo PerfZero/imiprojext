@@ -12,6 +12,9 @@ export function errorHandler(
         return res.status(err.status).json({ error: err.message });
     }
 
-    console.error(err);
-    return res.status(500).json({ error: "Internal server error" });
+    console.error("Server error:", err);
+    const errorMessage = process.env.NODE_ENV === 'development' 
+        ? err.message 
+        : "Internal server error";
+    return res.status(500).json({ error: errorMessage });
 }

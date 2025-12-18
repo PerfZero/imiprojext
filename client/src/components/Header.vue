@@ -110,6 +110,12 @@ import Notifications from "@/components/Notifications.vue";
                                 </div>
                             </div>
                             <div class="px-2">
+                                <div v-if="session.data?.user?.role === 'admin'">
+                                    <RouterLink to="/admin" class="dropdown-item">
+                                        <i data-feather="shield" class="avatar avatar-18 me-1"></i>
+                                        Админ панель
+                                    </RouterLink>
+                                </div>
                                 <div>
                                     <RouterLink to="/profile" class="dropdown-item"><i data-feather="user"
                                             class="avatar avatar-18 me-1"></i>

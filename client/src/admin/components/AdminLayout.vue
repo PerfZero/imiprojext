@@ -10,6 +10,7 @@ const shopMenuOpen = ref(true);
 const menuItems = [
     { path: "/admin", icon: "bi-speedometer2", label: "Дашборд" },
     { path: "/admin/users", icon: "bi-people", label: "Пользователи" },
+    { path: "/admin/referrals", icon: "bi-diagram-3", label: "Реферальная программа" },
     { path: "/admin/transactions", icon: "bi-arrow-left-right", label: "Транзакции" },
     { path: "/admin/wallets", icon: "bi-wallet2", label: "Кошельки" },
     { path: "/admin/notifications", icon: "bi-bell", label: "Уведомления" },

@@ -93,6 +93,31 @@ export class UserService {
         return upline;
     }
 
+    async getReferralTree(userId: string, maxDepth = 3): Promise<any> {
+        const buildTree = async (parentId: string, depth: number): Promise<any[]> => {
+            if (depth > maxDepth) return [];
+
+            const directReferrals = await this.db.query.user.findMany({
+                where: eq(users.referrerId, parentId),
+            });
+
+            const tree = await Promise.all(
+                directReferrals.map(async (user) => {
+                    const children = await buildTree(user.id, depth + 1);
+                    return {
+                        ...user,
+                        children,
+                        level: depth,
+                    };
+                })
+            );
+
+            return tree;
+        };
+
+        return buildTree(userId, 1);
+    }
+
     async updateAvatar(userId: string, imagePath: string) {
         await this.db
             .update(users)

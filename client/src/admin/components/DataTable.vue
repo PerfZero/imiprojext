@@ -105,7 +105,36 @@ const changePage = (newPage) => {
                                 </span>
                             </template>
                             <template v-else-if="col.type === 'date'">
-                                {{ new Date(getValue(item, col)).toLocaleString("ru") }}
+                                {{
+                                    (() => {
+                                        const value = getValue(item, col);
+                                        if (!value && value !== 0) return "-";
+                                        let dateValue = value;
+                                        if (typeof dateValue === 'number') {
+                                            if (dateValue < 10000000000) {
+                                                dateValue = dateValue * 1000;
+                                            }
+                                        } else if (typeof dateValue === 'string') {
+                                            dateValue = parseInt(dateValue);
+                                            if (!isNaN(dateValue) && dateValue < 10000000000) {
+                                                dateValue = dateValue * 1000;
+                                            }
+                                        }
+                                        try {
+                                            const date = new Date(dateValue);
+                                            if (isNaN(date.getTime())) return "-";
+                                            return date.toLocaleDateString("ru-RU", {
+                                                year: 'numeric',
+                                                month: '2-digit',
+                                                day: '2-digit',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            });
+                                        } catch {
+                                            return "-";
+                                        }
+                                    })()
+                                }}
                             </template>
                             <template v-else-if="col.type === 'currency'">
                                 {{ Number(getValue(item, col)).toLocaleString("ru", { minimumFractionDigits: 2 }) }}

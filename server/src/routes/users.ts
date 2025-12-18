@@ -4,9 +4,11 @@ import multer from "multer";
 import fs from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
+import { eq, sql, desc } from "drizzle-orm";
 
 import { AppError } from "../utils/AppError";
 import { services } from "../services";
+import { db, user } from "../db";
 
 const router = Router();
 
@@ -137,6 +139,43 @@ router.get("/:id/upline", isAuthenticated, async (req, res, next) => {
         }
         const upline = await services.userService.getUpline(req.userId);
         res.json(upline);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get("/my-referrals", isAuthenticated, async (req, res, next) => {
+    try {
+        if (!req.userId) {
+            throw new AppError("User ID not found", 401);
+        }
+        
+        const directReferrals = await db
+            .select()
+            .from(user)
+            .where(eq(user.referrerId, req.userId))
+            .orderBy(desc(user.created_at));
+        
+        const upline = await services.userService.getUpline(req.userId, 7);
+        
+        const referralStats = await db
+            .select({ count: sql<number>`count(*)` })
+            .from(user)
+            .where(eq(user.referrerId, req.userId));
+        
+        const totalReferrals = referralStats[0]?.count ?? 0;
+        
+        const referralTree = await services.userService.getReferralTree(req.userId, 3);
+        
+        res.json({
+            directReferrals,
+            directReferralsCount: totalReferrals,
+            upline: upline.map((u, index) => ({
+                ...u,
+                level: index + 1,
+            })),
+            referralTree,
+        });
     } catch (err) {
         next(err);
     }

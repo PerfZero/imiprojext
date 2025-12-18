@@ -49,6 +49,12 @@ class ApiService {
         });
     }
 
+    async getMyReferrals() {
+        return this.request("/api/users/my-referrals", {
+            method: "GET",
+        });
+    }
+
     // Получение балансов пользователя
     async getUserBalances() {
         return this.request("/api/users/balances", {

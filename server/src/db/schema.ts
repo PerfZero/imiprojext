@@ -73,7 +73,8 @@ export const products = sqliteTable("products", {
     currency: text("currency").notNull().default("RUB"),
     image: text("image"),
     categoryId: integer("category_id").references(() => categories.id),
-    discount: integer("discount").default(0),
+    discount: real("discount").default(0),
+    discountType: text("discount_type").default("percentage"),
     stock: integer("stock").default(0),
     isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
     createdAt: integer("created_at")

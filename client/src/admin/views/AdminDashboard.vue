@@ -76,17 +76,22 @@ onMounted(async () => {
                     </div>
                     <div class="card-body">
                         <div class="row g-3">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <router-link to="/admin/users" class="btn btn-outline-primary w-100">
                                     <i class="bi bi-people me-2"></i>Управление пользователями
                                 </router-link>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
+                                <router-link to="/admin/referrals" class="btn btn-outline-info w-100">
+                                    <i class="bi bi-diagram-3 me-2"></i>Реферальная программа
+                                </router-link>
+                            </div>
+                            <div class="col-md-3">
                                 <router-link to="/admin/transactions" class="btn btn-outline-success w-100">
                                     <i class="bi bi-arrow-left-right me-2"></i>Просмотр транзакций
                                 </router-link>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <router-link to="/admin/wallets" class="btn btn-outline-warning w-100">
                                     <i class="bi bi-wallet2 me-2"></i>Управление кошельками
                                 </router-link>

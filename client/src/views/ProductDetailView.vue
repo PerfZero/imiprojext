@@ -35,6 +35,9 @@ const discountPrice = computed(() => {
     if (!product.value) return 0;
     const basePrice = selectedVariant.value?.price || product.value.price;
     if (!product.value.discount) return basePrice;
+    if (product.value.discountType === "fixed") {
+        return Math.max(0, basePrice - product.value.discount);
+    }
     return Math.round(basePrice * (1 - product.value.discount / 100));
 });
 
@@ -207,7 +210,10 @@ onMounted(() => {
                                     ₽ {{ formatPrice(selectedVariant?.price || product.price) }}
                                 </s>
                             </h4>
-                            <span v-if="product.discount" class="badge bg-success">-{{ product.discount }}%</span>
+                            <span v-if="product.discount" class="badge bg-success">
+                                <span v-if="product.discountType === 'fixed'">-₽ {{ formatPrice(product.discount) }}</span>
+                                <span v-else>-{{ product.discount }}%</span>
+                            </span>
                         </div>
 
                         <div v-if="product.variants && product.variants.length > 0" class="card adminuiux-card mb-3 mb-lg-4">

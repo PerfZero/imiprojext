@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { eq, desc, sql, like, or } from "drizzle-orm";
+import { eq, desc, sql, like, or, inArray } from "drizzle-orm";
 import { db, user, walletBalances, transactions, notifications } from "../db";
 import { isAuthenticated } from "../utils/isAuthenticated";
 import { isAdmin } from "../utils/isAdmin";
+import { services } from "../services";
 
 const router = Router();
 
@@ -276,6 +277,173 @@ router.get("/notifications", async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ error: "Failed to fetch notifications" });
+    }
+});
+
+router.get("/referrals", async (req, res) => {
+    try {
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 50;
+        const search = (req.query.search as string) || "";
+        const offset = (page - 1) * limit;
+
+        const whereClause = search
+            ? or(
+                  like(user.email, `%${search}%`),
+                  like(user.name, `%${search}%`),
+                  like(user.phone, `%${search}%`),
+                  like(user.referralCode, `%${search}%`)
+              )
+            : undefined;
+
+        const users = await db
+            .select({
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                referralCode: user.referralCode,
+                referrerId: user.referrerId,
+                referrerCode: user.referrerCode,
+                createdAt: user.created_at,
+            })
+            .from(user)
+            .where(whereClause)
+            .orderBy(desc(user.created_at))
+            .limit(limit)
+            .offset(offset);
+
+        const referrerIds = users
+            .map(u => u.referrerId)
+            .filter((id): id is string => !!id);
+
+        const referrers = referrerIds.length > 0
+            ? await db
+                  .select({
+                      id: user.id,
+                      name: user.name,
+                      email: user.email,
+                      referralCode: user.referralCode,
+                  })
+                  .from(user)
+                  .where(inArray(user.id, referrerIds))
+            : [];
+
+        const referrersMap = new Map(referrers.map(r => [r.id, r]));
+
+        const usersWithReferrers = users.map(u => ({
+            ...u,
+            referrer: u.referrerId ? referrersMap.get(u.referrerId) : null,
+        }));
+
+        const countResult = await db
+            .select({ count: sql<number>`count(*)` })
+            .from(user)
+            .where(whereClause);
+        const count = countResult[0]?.count ?? 0;
+
+        res.json({
+            data: usersWithReferrers,
+            pagination: {
+                page,
+                limit,
+                total: count,
+                pages: Math.ceil(count / limit),
+            },
+        });
+    } catch (error) {
+        console.error("Error fetching referrals:", error);
+        res.status(500).json({ error: "Failed to fetch referrals" });
+    }
+});
+
+router.get("/referrals/stats", async (req, res) => {
+    try {
+        const totalUsers = await db
+            .select({ count: sql<number>`count(*)` })
+            .from(user);
+        
+        const usersWithReferrers = await db
+            .select({ count: sql<number>`count(*)` })
+            .from(user)
+            .where(sql`${user.referrerId} IS NOT NULL`);
+
+        const topReferrers = await db
+            .select({
+                referrerId: user.referrerId,
+                count: sql<number>`count(*)`,
+            })
+            .from(user)
+            .where(sql`${user.referrerId} IS NOT NULL`)
+            .groupBy(user.referrerId)
+            .orderBy(desc(sql`count(*)`))
+            .limit(10);
+
+        const referrerIds = topReferrers.map(t => t.referrerId).filter((id): id is string => !!id);
+        const referrerDetails = referrerIds.length > 0
+            ? await db
+                  .select({
+                      id: user.id,
+                      name: user.name,
+                      email: user.email,
+                      referralCode: user.referralCode,
+                  })
+                  .from(user)
+                  .where(inArray(user.id, referrerIds))
+            : [];
+
+        const referrerDetailsMap = new Map(referrerDetails.map(r => [r.id, r]));
+
+        const topReferrersWithDetails = topReferrers.map(tr => ({
+            ...referrerDetailsMap.get(tr.referrerId),
+            referralsCount: tr.count,
+        }));
+
+        res.json({
+            totalUsers: totalUsers[0]?.count ?? 0,
+            usersWithReferrers: usersWithReferrers[0]?.count ?? 0,
+            usersWithoutReferrers: (totalUsers[0]?.count ?? 0) - (usersWithReferrers[0]?.count ?? 0),
+            topReferrers: topReferrersWithDetails,
+        });
+    } catch (error) {
+        console.error("Error fetching referral stats:", error);
+        res.status(500).json({ error: "Failed to fetch referral stats" });
+    }
+});
+
+router.get("/referrals/user/:id", async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        const [userData] = await db
+            .select()
+            .from(user)
+            .where(eq(user.id, userId));
+
+        if (!userData) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        const directReferrals = await db
+            .select()
+            .from(user)
+            .where(eq(user.referrerId, userId))
+            .orderBy(desc(user.created_at));
+
+        const upline = await services.userService.getUpline(userId, 7);
+
+        res.json({
+            user: userData,
+            directReferrals,
+            directReferralsCount: directReferrals.length,
+            upline: upline.map((u, index) => ({
+                ...u,
+                level: index + 1,
+            })),
+        });
+    } catch (error) {
+        console.error("Error fetching user referrals:", error);
+        res.status(500).json({ error: "Failed to fetch user referrals" });
     }
 });
 

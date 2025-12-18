@@ -5,6 +5,7 @@ import PageNotFound from "@/views/PageNotFound.vue";
 import DashboardView from "@/views/DashboardView.vue";
 import ProfileView from "@/views/ProfileView.vue";
 import ProfileSettingsView from "@/views/ProfileSettingsView.vue";
+import ReferralView from "@/views/ReferralView.vue";
 
 import LoginView from "@/views/LoginView.vue";
 import SignupView from "@/views/SignupView.vue";
@@ -38,6 +39,7 @@ import AdminAttributes from "@/admin/views/AdminAttributes.vue";
 import AdminTransactions from "@/admin/views/AdminTransactions.vue";
 import AdminWallets from "@/admin/views/AdminWallets.vue";
 import AdminNotifications from "@/admin/views/AdminNotifications.vue";
+import AdminReferrals from "@/admin/views/AdminReferrals.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -86,6 +88,12 @@ const router = createRouter({
       path: "/profile-settings",
       name: "profile-settings",
       component: ProfileSettingsView,
+    },
+
+    {
+      path: "/referral",
+      name: "referral",
+      component: ReferralView,
     },
 
     // Wallet
@@ -238,6 +246,12 @@ const router = createRouter({
       path: "/admin/notifications",
       name: "admin-notifications",
       component: AdminNotifications,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/referrals",
+      name: "admin-referrals",
+      component: AdminReferrals,
       meta: { requiresAdmin: true },
     },
 

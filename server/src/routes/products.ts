@@ -13,15 +13,20 @@ const createCategorySchema = z.object({
 });
 
 const createProductSchema = z.object({
-    name: z.string().min(1),
-    description: z.string().nullable().optional(),
-    price: z.number().positive(),
+    name: z.string().min(1).max(255),
+    description: z.string().max(5000).nullable().optional(),
+    price: z.number().positive().max(999999999.99),
     currency: z.string().default("RUB"),
     image: z.string().nullable().optional(),
     categoryId: z.number().nullable().optional(),
-    discount: z.number().min(0).max(100).default(0),
-    stock: z.number().min(0).default(0),
+    discount: z.number().min(0).default(0),
+    discountType: z.enum(["percentage", "fixed"]).default("percentage"),
+    stock: z.number().int().min(0).max(2147483647).default(0),
     isActive: z.boolean().default(true),
+    imageUrls: z.array(z.object({
+        url: z.string(),
+        isMain: z.boolean().optional(),
+    })).optional(),
 });
 
 const updateProductSchema = createProductSchema.partial();
@@ -40,9 +45,9 @@ const createAttributeValueSchema = z.object({
 
 const createVariantSchema = z.object({
     productId: z.number(),
-    sku: z.string().nullable().optional(),
-    price: z.number().nullable().optional(),
-    stock: z.number().default(0),
+    sku: z.string().max(255).nullable().optional(),
+    price: z.number().positive().max(999999999.99).nullable().optional(),
+    stock: z.number().int().min(0).max(2147483647).default(0),
     image: z.string().nullable().optional(),
     attributeValueIds: z.array(z.number()).optional(),
 });
@@ -131,10 +136,43 @@ router.post("/", isAuthenticated, isAdmin, async (req, res, next) => {
     try {
         const parsed = createProductSchema.safeParse(req.body);
         if (!parsed.success) {
-            throw new AppError(parsed.error.message, 400);
+            const errors = parsed.error.errors.map(err => {
+                const field = err.path.join('.');
+                return `${field}: ${err.message}`;
+            }).join(', ');
+            throw new AppError(`Ошибка валидации: ${errors}`, 400);
         }
-        const product = await services.productService.createProduct(parsed.data);
-        res.status(201).json(product);
+        
+        const { imageUrls, ...productData } = parsed.data;
+        
+        if (productData.discountType === "percentage" && productData.discount > 100) {
+            throw new AppError("Скидка в процентах не может превышать 100%", 400);
+        }
+        if (productData.discountType === "fixed" && productData.discount > productData.price) {
+            throw new AppError("Фиксированная скидка не может превышать цену товара", 400);
+        }
+        
+        const product = await services.productService.createProduct(productData);
+        
+        if (imageUrls && Array.isArray(imageUrls) && imageUrls.length > 0) {
+            try {
+                for (const img of imageUrls) {
+                    if (img && img.url && typeof img.url === 'string') {
+                        await services.productService.addProductImage(
+                            product.id, 
+                            img.url, 
+                            Boolean(img.isMain)
+                        );
+                    }
+                }
+            } catch (imgError) {
+                console.error("Ошибка при добавлении изображений:", imgError);
+                throw new AppError(`Ошибка при добавлении изображений: ${imgError instanceof Error ? imgError.message : 'Неизвестная ошибка'}`, 500);
+            }
+        }
+        
+        const productWithImages = await services.productService.getProductWithVariants(product.id);
+        res.status(201).json(productWithImages || product);
     } catch (err) {
         next(err);
     }
@@ -145,7 +183,11 @@ router.put("/:id", isAuthenticated, isAdmin, async (req, res, next) => {
         const id = parseInt(req.params.id);
         const parsed = updateProductSchema.safeParse(req.body);
         if (!parsed.success) {
-            throw new AppError(parsed.error.message, 400);
+            const errors = parsed.error.errors.map(err => {
+                const field = err.path.join('.');
+                return `${field}: ${err.message}`;
+            }).join(', ');
+            throw new AppError(`Ошибка валидации: ${errors}`, 400);
         }
         const product = await services.productService.updateProduct(id, parsed.data);
         res.json(product);
