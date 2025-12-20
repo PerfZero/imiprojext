@@ -125,20 +125,21 @@ onMounted(() => {
                             <div class="px-2">
                                 <div v-if="session.data?.user?.role === 'admin'">
                                     <RouterLink to="/admin" class="dropdown-item">
-                                        <i data-feather="shield" class="avatar avatar-18 me-1"></i>
+                                        <i class="bi bi-shield-check avatar avatar-18 me-1"></i>
                                         Админ панель
                                     </RouterLink>
                                 </div>
                                 <div>
-                                    <RouterLink to="/profile" class="dropdown-item"><i data-feather="user"
-                                            class="avatar avatar-18 me-1"></i>
-                                        Мой профиль</RouterLink>
+                                    <RouterLink to="/profile" class="dropdown-item">
+                                        <i class="bi bi-person avatar avatar-18 me-1"></i>
+                                        Мой профиль
+                                    </RouterLink>
                                 </div>
                                 <div>
                                     <RouterLink to="/dashboard" class="dropdown-item">
                                         <div class="row g-0">
                                             <div class="col align-self-center">
-                                                <i data-feather="layout" class="avatar avatar-18 me-1"></i>
+                                                <i class="bi bi-diagram-3 avatar avatar-18 me-1"></i>
                                                 Структура
                                             </div>
                                             <div class="col-auto">
@@ -160,22 +161,21 @@ onMounted(() => {
                                     </RouterLink>
                                 </div>
                                 <div>
-                                    <RouterLink to="/dashboard" class="dropdown-item">
-                                        <i data-feather="dollar-sign" class="avatar avatar-18 me-1"></i>
-
+                                    <RouterLink to="/referral" class="dropdown-item">
+                                        <i class="bi bi-currency-dollar avatar avatar-18 me-1"></i>
                                         Заработок
                                     </RouterLink>
                                 </div>
 
                                 <div>
                                     <RouterLink to="/profile-settings" class="dropdown-item">
-                                        <i data-feather="settings" class="avatar avatar-18 me-1"></i>
+                                        <i class="bi bi-gear avatar avatar-18 me-1"></i>
                                         Настройки
                                     </RouterLink>
                                 </div>
                                 <div>
                                     <a class="dropdown-item theme-red" href="/" @click="signOut">
-                                        <i data-feather="power" class="avatar avatar-18 me-1"></i>
+                                        <i class="bi bi-box-arrow-right avatar avatar-18 me-1"></i>
                                         Выйти
                                     </a>
                                 </div>

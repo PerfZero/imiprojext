@@ -21,7 +21,7 @@ onMounted(() => {
     <div class="dropdown d-inline-block open">
         <button class="btn btn-link btn-square btn-icon btn-link-header dropdown-toggle no-caret" type="button"
             data-bs-toggle="dropdown" aria-expanded="false" id="yourDropdownToggleId">
-            <i data-feather="grid"></i>
+            <i class="bi bi-grid"></i>
         </button>
         <!-- <div class="dropdown-menu dropdown-menu-end width-300 pt-0 px-0 overflow-hidden m-auto"> -->
         <div class="dropdown-menu dropdown-menu-end center-on-screen-mobile width-360 overflow-hidden"

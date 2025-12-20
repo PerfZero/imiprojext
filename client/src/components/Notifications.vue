@@ -37,7 +37,7 @@ const notificationsFiltered = computed(() => {
     <div class="dropdown d-inline-block ">
         <button class="btn btn-link btn-square btn-icon btn-link-header dropdown-toggle no-caret" type="button"
             data-bs-toggle="dropdown" aria-expanded="false">
-            <i data-feather="bell"></i>
+            <i class="bi bi-bell"></i>
             <span v-if="notifications.length > 0" style="min-width:20px;"
                 class="position-absolute top-0 end-0 badge rounded-pill bg-danger p-1">
                 <small>{{ notifications.length }}</small>
