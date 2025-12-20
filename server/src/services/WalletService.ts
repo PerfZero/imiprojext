@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 
-import { DbClient, walletBalances, WalletBalance } from "../db";
+import { DbClient, walletBalances, WalletBalance, user } from "../db";
 import { AppError } from "../utils/AppError";
 import { MlmService } from "./MlmService";
 import { NotificationService } from "./NotificationService";
@@ -22,6 +22,14 @@ export interface ConvertInput {
 
 export interface PurchaseInput {
     userId: string;
+    currency: string;
+    amount: number;
+    description?: string | undefined;
+}
+
+export interface TransferByCardInput {
+    fromUserId: string;
+    cardNumber: string;
     currency: string;
     amount: number;
     description?: string | undefined;
@@ -213,6 +221,109 @@ export class WalletService {
             message: `Вы оплатили покупку ${input.amount} ${input.currency}`,
             data: { description: input.description },
         });
+    }
+
+    async transferByCard(input: TransferByCardInput) {
+        const fromBalance = await this.getBalanceRecord(
+            input.fromUserId,
+            input.currency
+        );
+        if (!fromBalance || fromBalance.balance < input.amount) {
+            throw new AppError("Недостаточно средств на балансе", 400);
+        }
+
+        const toUserId = await this.findUserByCardNumber(input.cardNumber);
+        if (!toUserId) {
+            throw new AppError("Карта не найдена", 404);
+        }
+
+        if (toUserId === input.fromUserId) {
+            throw new AppError("Нельзя перевести средства самому себе", 400);
+        }
+
+        await this.adjustBalance({
+            userId: input.fromUserId,
+            currency: input.currency,
+            amount: -input.amount,
+        });
+
+        await this.adjustBalance({
+            userId: toUserId,
+            currency: input.currency,
+            amount: input.amount,
+        });
+
+        await this.transactions.createTransaction({
+            userId: input.fromUserId,
+            currency: input.currency,
+            amount: -input.amount,
+            type: "transfer_out",
+            metadata: JSON.stringify({ 
+                toUserId,
+                cardNumber: input.cardNumber,
+                description: input.description 
+            }),
+        });
+
+        await this.transactions.createTransaction({
+            userId: toUserId,
+            currency: input.currency,
+            amount: input.amount,
+            type: "transfer_in",
+            metadata: JSON.stringify({ 
+                fromUserId: input.fromUserId,
+                cardNumber: input.cardNumber,
+                description: input.description 
+            }),
+        });
+
+        await this.notifications.createNotification({
+            userId: input.fromUserId,
+            category: "wallet",
+            subcategory: "transfer_out",
+            message: `Вы перевели ${input.amount} ${input.currency} на карту ${input.cardNumber}`,
+        });
+
+        await this.notifications.createNotification({
+            userId: toUserId,
+            category: "wallet",
+            subcategory: "transfer_in",
+            message: `Вам переведено ${input.amount} ${input.currency} на карту`,
+        });
+
+        return await this.getBalanceRecord(input.fromUserId, input.currency);
+    }
+
+    private async findUserByCardNumber(cardNumber: string): Promise<string | null> {
+        const normalizedCardNumber = cardNumber.replace(/\s/g, '');
+        const allUsers = await this.db.query.user.findMany();
+        
+        for (const user of allUsers) {
+            const balances = await this.getBalances(user.id);
+            for (let index = 0; index < balances.length; index++) {
+                const generatedNumber = this.generateCardNumber(user.id, balances[index].currency, index);
+                const normalizedGenerated = generatedNumber.replace(/\s/g, '');
+                if (normalizedGenerated === normalizedCardNumber) {
+                    return user.id;
+                }
+            }
+        }
+        
+        return null;
+    }
+
+    private generateCardNumber(userId: string, currency: string, index: number): string {
+        const seed = `${userId}-${currency}-${index}`;
+        let hash = 0;
+        for (let i = 0; i < seed.length; i++) {
+            const char = seed.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        const absHash = Math.abs(hash);
+        const cardDigits = String(absHash).padStart(12, '0').slice(-12);
+        const cardNumber = `0000 ${cardDigits.slice(0, 4)} ${cardDigits.slice(4, 8)} ${cardDigits.slice(8, 12)}`;
+        return cardNumber;
     }
 
     private async adjustBalance(input: BalanceChangeInput) {

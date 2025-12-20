@@ -11,6 +11,7 @@ import LoginView from "@/views/LoginView.vue";
 import SignupView from "@/views/SignupView.vue";
 
 import WalletView from "@/views/WalletView.vue";
+import CardDetailsView from "@/views/CardDetailsView.vue";
 import ConvertView from "@/views/ConvertView.vue";
 import TopupView from "@/views/TopupView.vue";
 import PayView from "@/views/PayView.vue";
@@ -103,6 +104,11 @@ const router = createRouter({
       path: "/wallet",
       name: "wallet",
       component: WalletView,
+    },
+    {
+      path: "/wallet/:currency",
+      name: "card-details",
+      component: CardDetailsView,
     },
     {
       path: "/convert",

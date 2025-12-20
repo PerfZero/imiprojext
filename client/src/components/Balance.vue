@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from "vue";
+import { RouterLink } from "vue-router";
 import apiService from '@/services/apiService';
 
 import Autocounter from '@/components/Autocounter.vue'
@@ -24,9 +25,9 @@ onNotify((data) => {
 
 <template>
     <li v-for="item in balances" :key="item.currency" class="nav-item">
-        <div class="nav-link">
+        <RouterLink :to="`/wallet/${item.currency}`" class="nav-link">
             <i class="menu-icon bi bi-currency-dollar h4"></i>
             <span class="menu-name"><Autocounter :count="item.balance" /> {{ item.currency }}</span>
-        </div>
+        </RouterLink>
     </li>
 </template>

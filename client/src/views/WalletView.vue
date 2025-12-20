@@ -4,8 +4,10 @@ import { RouterLink } from 'vue-router';
 import apiService from '@/services/apiService';
 import { formatTimestamp } from '@/utils/formatDateTime';
 import { useNotifications } from '@/composables/useNotifications';
+import { authClient } from '@/lib/auth-client';
 
 const { onNotify } = useNotifications();
+const session = authClient.useSession();
 
 const balances = ref([]);
 const transactions = ref([]);
@@ -77,6 +79,34 @@ const isPositive = (type) => {
     return type === 'deposit' || type === 'mlm_reward' || type === 'convert_in';
 };
 
+const generateCardNumber = (userId, currency, index) => {
+    const seed = `${userId}-${currency}-${index}`;
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+        const char = seed.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+    }
+    const absHash = Math.abs(hash);
+    const cardDigits = String(absHash).padStart(12, '0').slice(-12);
+    const cardNumber = `0000 ${cardDigits.slice(0, 4)} ${cardDigits.slice(4, 8)} ${cardDigits.slice(8, 12)}`;
+    return cardNumber;
+};
+
+const generateExpiryDate = (userId, currency, index) => {
+    const seed = `${userId}-${currency}-${index}`;
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+        const char = seed.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+    }
+    const absHash = Math.abs(hash);
+    const month = (absHash % 12) + 1;
+    const year = new Date().getFullYear() + 3 + (absHash % 2);
+    return `${String(month).padStart(2, '0')}/${String(year).slice(-2)}`;
+};
+
 onMounted(async () => {
     await updateBalances();
     await updateTransactions();
@@ -130,18 +160,18 @@ onNotify((data) => {
                                                     <i class="bi bi-credit-card fs-4"></i>
                                                 </div>
                                                 <div class="col text-end">
-                                                    <p><span class="small opacity-50">Wallet</span><br><span class="">Balance</span></p>
+                                                    <p><span class="small opacity-50">IMI CLUB</span><br><span class="">Credit Card</span></p>
                                                 </div>
                                             </div>
-                                            <h4 class="fw-normal my-4 my-lg-5">{{ balance.currency }}</h4>
+                                            <h4 class="fw-normal my-4 my-lg-5">{{ generateCardNumber(session.data?.user?.id || '', balance.currency, index) }}</h4>
                                             <div class="row gx-3">
                                                 <div class="col-auto">
-                                                    <p class="mb-0 small opacity-50">Currency</p>
-                                                    <p>{{ balance.currency }}</p>
+                                                    <p class="mb-0 small opacity-50">Expiry</p>
+                                                    <p>{{ generateExpiryDate(session.data?.user?.id || '', balance.currency, index) }}</p>
                                                 </div>
                                                 <div class="col text-end">
-                                                    <p class="mb-0 small opacity-50">Balance</p>
-                                                    <p>{{ parseFloat(balance.balance).toFixed(2) }}</p>
+                                                    <p class="mb-0 small opacity-50">Card Holder</p>
+                                                    <p>{{ session.data?.user?.name || 'User' }}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -165,6 +195,11 @@ onNotify((data) => {
                     </div>
                     
                     <div class="row gx-2 align-items-center justify-content-center mb-3 mb-lg-4">
+                        <div class="col-auto py-2">
+                            <RouterLink to="/pay" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Перевод" data-bs-original-title="Перевод">
+                                <i class="bi bi-send"></i>
+                            </RouterLink>
+                        </div>
                         <div class="col-auto py-2">
                             <RouterLink to="/pays" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Scan to pay" data-bs-original-title="Scan to pay">
                                 <i class="bi bi-qr-code"></i>
@@ -358,6 +393,11 @@ onNotify((data) => {
                 </div>
                 <div class="offcanvas-body pb-0">
                     <div class="row gx-3 text-center align-items-center">
+                        <div class="col-3 mb-3 mb-lg-4">
+                            <RouterLink to="/pay" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Перевод" data-bs-original-title="Перевод">
+                                <i class="bi bi-send"></i>
+                            </RouterLink>
+                        </div>
                         <div class="col-3 mb-3 mb-lg-4">
                             <RouterLink to="/withdraw" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Send Money" data-bs-original-title="Send Money">
                                 <i class="bi bi-arrow-up-right"></i>

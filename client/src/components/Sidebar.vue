@@ -100,12 +100,18 @@ watch(
                     <ul class="dropdown-menu">
                         <Balance />
 
-                        <!-- <li class="nav-item">
+                        <li class="nav-item">
                             <RouterLink to="/wallet" class="nav-link">
-                                <i class="menu-icon bi bi-wallet2 h4"></i>
-                                <span class="menu-name">Кошелек</span>
+                                <i class="menu-icon bi bi-wallet"></i>
+                                <div class="col align-self-center menu-name">Кошелек</div>
                             </RouterLink>
-                        </li> -->
+                        </li>
+                        <li class="nav-item">
+                            <RouterLink to="/pay" class="nav-link">
+                                <i class="menu-icon bi bi-arrow-up-right"></i>
+                                <div class="col align-self-center menu-name">Перевод</div>
+                            </RouterLink>
+                        </li>
                         <li class="nav-item">
                             <RouterLink to="/topup" class="nav-link">
                                 <i class="menu-icon bi bi-plus-lg h4"></i>

@@ -25,6 +25,13 @@ const purchaseSchema = z.object({
     description: z.string().optional(),
 });
 
+const transferByCardSchema = z.object({
+    cardNumber: z.string().min(1),
+    currency: z.string().min(1),
+    amount: z.number().positive(),
+    description: z.string().optional(),
+});
+
 router.post("/deposit", isAuthenticated, async (req, res, next) => {
     try {
         if (!req.userId) {
@@ -98,6 +105,25 @@ router.post("/purchase", isAuthenticated, async (req, res, next) => {
             userId: req.userId,
         });
         res.status(201).json({ status: "ok" });
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.post("/transfer-by-card", isAuthenticated, async (req, res, next) => {
+    try {
+        if (!req.userId) {
+            throw new AppError("User ID not found", 401);
+        }
+        const parsed = transferByCardSchema.safeParse(req.body);
+        if (!parsed.success) {
+            throw new AppError(parsed.error.message, 400);
+        }
+        const balance = await services.walletService.transferByCard({
+            ...parsed.data,
+            fromUserId: req.userId,
+        });
+        res.json(balance);
     } catch (err) {
         next(err);
     }

@@ -104,6 +104,13 @@ class ApiService {
         });
     }
 
+    async transferByCard(data) {
+        return this.request("/api/wallet/transfer-by-card", {
+            method: "POST",
+            body: JSON.stringify(data),
+        });
+    }
+
     // Загрузка аватарки пользователя
     async uploadAvatar(file) {
         const formData = new FormData();
