@@ -14,6 +14,7 @@ const menuItems = [
     { path: "/admin/transactions", icon: "bi-arrow-left-right", label: "Транзакции" },
     { path: "/admin/wallets", icon: "bi-wallet2", label: "Кошельки" },
     { path: "/admin/notifications", icon: "bi-bell", label: "Уведомления" },
+    { path: "/admin/verifications", icon: "bi-shield-check", label: "Верификации" },
 ];
 
 const shopMenuItems = [

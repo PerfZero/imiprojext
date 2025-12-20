@@ -5,6 +5,7 @@ class ApiService {
         const url = `${endpoint}`;
 
         const config = {
+            credentials: 'include',
             headers: {
                 "Content-Type": "application/json",
                 ...options.headers,
@@ -110,8 +111,8 @@ class ApiService {
 
         const config = {
             method: "POST",
+            credentials: 'include',
             body: formData,
-            // Убираем Content-Type заголовок, чтобы браузер установил его автоматически с boundary
         };
         try {
             const response = await fetch("/api/users/avatar", config);
@@ -315,6 +316,7 @@ class ApiService {
 
         const response = await fetch("/api/upload/image", {
             method: "POST",
+            credentials: 'include',
             body: formData,
         });
 
@@ -323,6 +325,46 @@ class ApiService {
         }
 
         return response.json();
+    }
+
+    async uploadVerificationDocuments(files) {
+        const formData = new FormData();
+        formData.append("passportPage1", files.passportPage1);
+        formData.append("passportPage2", files.passportPage2);
+        formData.append("selfieWithPassport", files.selfieWithPassport);
+
+        const response = await fetch("/api/verification/upload", {
+            method: "POST",
+            credentials: 'include',
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            let errorData;
+            try {
+                errorData = JSON.parse(errorText);
+            } catch (e) {
+                errorData = { error: errorText };
+            }
+            const apiError = new Error(`HTTP error! status: ${response.status}`);
+            apiError.error = errorData.error;
+            throw apiError;
+        }
+
+        return response.json();
+    }
+
+    async getVerificationStatus() {
+        return this.request("/api/verification/status", {
+            method: "GET",
+        });
+    }
+
+    async getUserVerification(userId) {
+        return this.request(`/api/verification/${userId}`, {
+            method: "GET",
+        });
     }
 }
 

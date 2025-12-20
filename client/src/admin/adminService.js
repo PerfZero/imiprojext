@@ -61,6 +61,24 @@ const adminService = {
     async getUserReferrals(userId) {
         return apiService.request(`/api/admin/referrals/user/${userId}`);
     },
+
+    async getVerifications(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return apiService.request(`/api/admin/verifications?${query}`);
+    },
+
+    async approveVerification(id) {
+        return apiService.request(`/api/admin/verifications/${id}/approve`, {
+            method: "POST",
+        });
+    },
+
+    async rejectVerification(id, reason) {
+        return apiService.request(`/api/admin/verifications/${id}/reject`, {
+            method: "POST",
+            body: JSON.stringify({ reason }),
+        });
+    },
 };
 
 export default adminService;

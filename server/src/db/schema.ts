@@ -166,3 +166,26 @@ export type Attribute = typeof attributes.$inferSelect;
 export type AttributeValue = typeof attributeValues.$inferSelect;
 export type ProductVariant = typeof productVariants.$inferSelect;
 export type ProductVariantAttribute = typeof productVariantAttributes.$inferSelect;
+
+export const userVerification = sqliteTable("user_verification", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: text("user_id")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    passportPage1Url: text("passport_page1_url"),
+    passportPage2Url: text("passport_page2_url"),
+    selfieWithPassportUrl: text("selfie_with_passport_url"),
+    status: text("status").notNull().default("pending"),
+    rejectionReason: text("rejection_reason"),
+    reviewedBy: text("reviewed_by").references(() => users.id),
+    reviewedAt: integer("reviewed_at", { mode: "timestamp_ms" }),
+    createdAt: integer("created_at")
+        .notNull()
+        .default(sql`(strftime('%s','now'))`),
+    updatedAt: integer("updated_at")
+        .notNull()
+        .default(sql`(strftime('%s','now'))`)
+        .$onUpdate(() => sql`(strftime('%s','now'))`),
+});
+
+export type UserVerification = typeof userVerification.$inferSelect;

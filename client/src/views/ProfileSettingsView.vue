@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { useToast } from '@/composables/useToast';
 import { authClient } from "@/lib/auth-client";
 import apiService from '@/services/apiService';
@@ -9,21 +9,97 @@ const { showToast } = useToast();
 
 const session = authClient.useSession();
 
-// Состояния для отображения ошибок
 const errorMessage = ref('');
 const showError = ref(false);
 
-// Состояния для полей формы
 const name = ref('');
 const phone = ref('');
 
-// Следим за изменением сессии и обновляем значения полей
+const verificationStatus = ref(null);
+const verificationLoading = ref(false);
+const uploadLoading = ref(false);
+const passportPage1 = ref(null);
+const passportPage2 = ref(null);
+const selfieWithPassport = ref(null);
+const passportPage1Preview = ref('');
+const passportPage2Preview = ref('');
+const selfieWithPassportPreview = ref('');
+
 watch(() => session.value?.data?.user, (newUser) => {
     if (newUser) {
         name.value = newUser.name || '';
         phone.value = newUser.phone || '';
     }
 }, { immediate: true });
+
+const loadVerificationStatus = async () => {
+    try {
+        verificationLoading.value = true;
+        const status = await apiService.getVerificationStatus();
+        verificationStatus.value = status;
+        
+        if (status && status.status !== 'none') {
+            passportPage1Preview.value = status.passportPage1Url || '';
+            passportPage2Preview.value = status.passportPage2Url || '';
+            selfieWithPassportPreview.value = status.selfieWithPassportUrl || '';
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки статуса верификации:', error);
+    } finally {
+        verificationLoading.value = false;
+    }
+};
+
+const handleFileSelect = (field, event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Размер файла слишком большой. Максимум 5MB.');
+        return;
+    }
+
+    if (field === 'passportPage1') {
+        passportPage1.value = file;
+        passportPage1Preview.value = URL.createObjectURL(file);
+    } else if (field === 'passportPage2') {
+        passportPage2.value = file;
+        passportPage2Preview.value = URL.createObjectURL(file);
+    } else if (field === 'selfieWithPassport') {
+        selfieWithPassport.value = file;
+        selfieWithPassportPreview.value = URL.createObjectURL(file);
+    }
+};
+
+const uploadVerificationDocuments = async () => {
+    if (!passportPage1.value || !passportPage2.value || !selfieWithPassport.value) {
+        alert('Пожалуйста, загрузите все три документа');
+        return;
+    }
+
+    try {
+        uploadLoading.value = true;
+        await apiService.uploadVerificationDocuments({
+            passportPage1: passportPage1.value,
+            passportPage2: passportPage2.value,
+            selfieWithPassport: selfieWithPassport.value,
+        });
+        showToast('Успех', 'Документы успешно загружены и отправлены на проверку', 5000);
+        await loadVerificationStatus();
+        passportPage1.value = null;
+        passportPage2.value = null;
+        selfieWithPassport.value = null;
+    } catch (error) {
+        alert(error.error || 'Ошибка при загрузке документов');
+        console.error('Ошибка загрузки документов:', error);
+    } finally {
+        uploadLoading.value = false;
+    }
+};
+
+onMounted(() => {
+    loadVerificationStatus();
+});
 
 const uploadPhoto = () => {
     // Создаем элемент input для выбора файла
@@ -186,6 +262,96 @@ const updateProfile = async () => {
                 </div>
                 <div class="col"><button @click="updateProfile" class="btn btn-theme">Сохранить</button></div>
                 <div class="col-auto"><button class="btn btn-link theme-red">Отмена</button></div>
+            </div>
+
+            <div class="card bg-none mb-3 mb-lg-4">
+                <div class="card-body">
+                    <h5 class="mb-3">Верификация</h5>
+                    
+                    <div v-if="verificationLoading" class="text-center py-3">
+                        <div class="spinner-border spinner-border-sm" role="status"></div>
+                    </div>
+
+                    <div v-else>
+                        <div class="mb-3">
+                            <span class="badge" :class="{
+                                'bg-warning': verificationStatus?.status === 'pending',
+                                'bg-success': verificationStatus?.status === 'approved',
+                                'bg-danger': verificationStatus?.status === 'rejected',
+                                'bg-secondary': !verificationStatus || verificationStatus?.status === 'none'
+                            }">
+                                {{ verificationStatus?.status === 'pending' ? 'На проверке' : 
+                                   verificationStatus?.status === 'approved' ? 'Верифицирован' : 
+                                   verificationStatus?.status === 'rejected' ? 'Отклонено' : 
+                                   'Не верифицирован' }}
+                            </span>
+                        </div>
+
+                        <div v-if="verificationStatus?.status === 'rejected' && verificationStatus?.rejectionReason" class="alert alert-danger mb-3">
+                            <strong>Причина отклонения:</strong> {{ verificationStatus.rejectionReason }}
+                        </div>
+
+                        <div v-if="!verificationStatus || verificationStatus?.status === 'none' || verificationStatus?.status === 'rejected'">
+                            <div class="row g-3 mb-3">
+                                <div class="col-12 col-md-4">
+                                    <label class="form-label">Первая страница паспорта</label>
+                                    <input 
+                                        type="file" 
+                                        class="form-control" 
+                                        accept="image/*"
+                                        @change="handleFileSelect('passportPage1', $event)"
+                                        :disabled="uploadLoading"
+                                    />
+                                    <div v-if="passportPage1Preview" class="mt-2">
+                                        <img :src="passportPage1Preview" alt="Preview" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <label class="form-label">Вторая страница паспорта</label>
+                                    <input 
+                                        type="file" 
+                                        class="form-control" 
+                                        accept="image/*"
+                                        @change="handleFileSelect('passportPage2', $event)"
+                                        :disabled="uploadLoading"
+                                    />
+                                    <div v-if="passportPage2Preview" class="mt-2">
+                                        <img :src="passportPage2Preview" alt="Preview" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-4">
+                                    <label class="form-label">Селфи с паспортом</label>
+                                    <input 
+                                        type="file" 
+                                        class="form-control" 
+                                        accept="image/*"
+                                        @change="handleFileSelect('selfieWithPassport', $event)"
+                                        :disabled="uploadLoading"
+                                    />
+                                    <div v-if="selfieWithPassportPreview" class="mt-2">
+                                        <img :src="selfieWithPassportPreview" alt="Preview" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <button 
+                                @click="uploadVerificationDocuments" 
+                                class="btn btn-primary"
+                                :disabled="uploadLoading || !passportPage1 || !passportPage2 || !selfieWithPassport"
+                            >
+                                <span v-if="uploadLoading" class="spinner-border spinner-border-sm me-2"></span>
+                                Загрузить документы
+                            </button>
+                        </div>
+
+                        <div v-else-if="verificationStatus?.status === 'pending'" class="alert alert-warning">
+                            Ваши документы находятся на проверке. Ожидайте решения модератора.
+                        </div>
+
+                        <div v-else-if="verificationStatus?.status === 'approved'" class="alert alert-success">
+                            Ваша верификация успешно пройдена.
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 </template>

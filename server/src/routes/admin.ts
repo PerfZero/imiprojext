@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { eq, desc, sql, like, or, inArray } from "drizzle-orm";
-import { db, user, walletBalances, transactions, notifications } from "../db";
+import { db, user, walletBalances, transactions, notifications, userVerification } from "../db";
 import { isAuthenticated } from "../utils/isAuthenticated";
 import { isAdmin } from "../utils/isAdmin";
 import { services } from "../services";
+import { AppError } from "../utils/AppError";
 
 const router = Router();
 
@@ -444,6 +445,135 @@ router.get("/referrals/user/:id", async (req, res) => {
     } catch (error) {
         console.error("Error fetching user referrals:", error);
         res.status(500).json({ error: "Failed to fetch user referrals" });
+    }
+});
+
+router.get("/verifications", async (req, res, next) => {
+    try {
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 20;
+        const status = req.query.status as string;
+        const offset = (page - 1) * limit;
+
+        let query = db.select().from(userVerification);
+
+        if (status) {
+            query = query.where(eq(userVerification.status, status)) as typeof query;
+        }
+
+        const data = await query
+            .orderBy(desc(userVerification.createdAt))
+            .limit(limit)
+            .offset(offset);
+
+        const verificationsWithUsers = await Promise.all(
+            data.map(async (verification) => {
+                const userData = await services.userService.getUserById(verification.userId);
+                const reviewer = verification.reviewedBy
+                    ? await services.userService.getUserById(verification.reviewedBy)
+                    : null;
+                return {
+                    ...verification,
+                    user: userData
+                        ? {
+                              id: userData.id,
+                              name: userData.name,
+                              email: userData.email,
+                          }
+                        : null,
+                    reviewer: reviewer
+                        ? {
+                              id: reviewer.id,
+                              name: reviewer.name,
+                          }
+                        : null,
+                };
+            })
+        );
+
+        const countResult = await db
+            .select({ count: sql<number>`count(*)` })
+            .from(userVerification)
+            .where(status ? eq(userVerification.status, status) : undefined);
+        const count = countResult[0]?.count ?? 0;
+
+        res.json({
+            data: verificationsWithUsers,
+            pagination: {
+                page,
+                limit,
+                total: count,
+                pages: Math.ceil(count / limit),
+            },
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.post("/verifications/:id/approve", async (req, res, next) => {
+    try {
+        const id = parseInt(req.params.id);
+        const userId = (req as any).userId;
+
+        if (!userId) {
+            throw new AppError("User not authenticated", 401);
+        }
+
+        const verification = await services.verificationService.updateVerificationStatus(id, {
+            status: "approved",
+            reviewedBy: userId,
+        });
+
+        const userData = await services.userService.getUserById(verification.userId);
+        if (userData) {
+            await services.notificationService.createNotification({
+                userId: verification.userId,
+                category: "verification",
+                subcategory: "approved",
+                message: "Ваша верификация одобрена",
+            });
+        }
+
+        res.json(verification);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.post("/verifications/:id/reject", async (req, res, next) => {
+    try {
+        const id = parseInt(req.params.id);
+        const userId = (req as any).userId;
+        const { reason } = req.body;
+
+        if (!userId) {
+            throw new AppError("User not authenticated", 401);
+        }
+
+        if (!reason || !reason.trim()) {
+            throw new AppError("Причина отклонения обязательна", 400);
+        }
+
+        const verification = await services.verificationService.updateVerificationStatus(id, {
+            status: "rejected",
+            reviewedBy: userId,
+            rejectionReason: reason,
+        });
+
+        const userData = await services.userService.getUserById(verification.userId);
+        if (userData) {
+            await services.notificationService.createNotification({
+                userId: verification.userId,
+                category: "verification",
+                subcategory: "rejected",
+                message: `Верификация отклонена: ${reason}`,
+            });
+        }
+
+        res.json(verification);
+    } catch (err) {
+        next(err);
     }
 });
 

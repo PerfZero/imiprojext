@@ -24,7 +24,7 @@ export default defineConfig({
   },
   plugins: [
     vue(),
-    ...(process.env.NODE_ENV === 'development' ? [vueDevTools()] : []),
+    vueDevTools(),
     VitePWA({
       registerType: "autoUpdate",
       devOptions: {
@@ -74,31 +74,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
-    },
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            if (id.includes('vue') || id.includes('vue-router')) {
-              return 'vue-vendor';
-            }
-            if (id.includes('bootstrap')) {
-              return 'bootstrap-vendor';
-            }
-            return 'vendor';
-          }
-        },
-      },
-    },
-    chunkSizeWarningLimit: 1000,
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
     },
   },
 });

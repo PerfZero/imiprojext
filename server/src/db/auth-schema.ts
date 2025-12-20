@@ -24,6 +24,7 @@ export const user = sqliteTable("user", {
     referralCode: text("referral_code"),
     referrerId: text("referrer_id"),
     referrerCode: text("referrer_code"),
+    verificationStatus: text("verification_status").default("pending"),
 });
 export type User = typeof user.$inferSelect;
 
