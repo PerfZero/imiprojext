@@ -1,600 +1,388 @@
+<script setup>
+import { ref, onMounted } from 'vue';
+import { RouterLink } from 'vue-router';
+import apiService from '@/services/apiService';
+import { formatTimestamp } from '@/utils/formatDateTime';
+import { useNotifications } from '@/composables/useNotifications';
+
+const { onNotify } = useNotifications();
+
+const balances = ref([]);
+const transactions = ref([]);
+const loading = ref(true);
+const searchQuery = ref('');
+
+const updateBalances = async () => {
+    try {
+        balances.value = await apiService.getUserBalances();
+    } catch (error) {
+        console.error('Ошибка загрузки балансов:', error);
+    }
+};
+
+const updateTransactions = async () => {
+    try {
+        const data = await apiService.getTransactions();
+        transactions.value = data.slice(0, 5);
+    } catch (error) {
+        console.error('Ошибка загрузки транзакций:', error);
+    } finally {
+        loading.value = false;
+    }
+};
+
+const totalBalance = ref(0);
+const totalReceived = ref(0);
+const totalSent = ref(0);
+
+const calculateStats = () => {
+    totalBalance.value = balances.value.reduce((sum, b) => sum + (parseFloat(b.balance) || 0), 0);
+    
+    const received = transactions.value
+        .filter(t => t.type === 'deposit' || t.type === 'mlm_reward' || t.type === 'convert_in')
+        .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+    totalReceived.value = received;
+    
+    const sent = transactions.value
+        .filter(t => t.type === 'withdraw' || t.type === 'purchase' || t.type === 'convert_out')
+        .reduce((sum, t) => sum + (parseFloat(t.amount) || 0), 0);
+    totalSent.value = sent;
+};
+
+const typeToName = (type) => {
+    const names = {
+        'mlm_reward': 'Награда MLM',
+        'deposit': 'Пополнение',
+        'purchase': 'Покупка',
+        'withdraw': 'Вывод',
+        'convert_in': 'Конвертация (входящая)',
+        'convert_out': 'Конвертация (исходящая)'
+    };
+    return names[type] || type;
+};
+
+const typeToIcon = (type) => {
+    const icons = {
+        'mlm_reward': 'bi-currency-dollar',
+        'deposit': 'bi-arrow-down-left',
+        'purchase': 'bi-bag',
+        'withdraw': 'bi-arrow-up-right',
+        'convert_in': 'bi-arrow-down-left',
+        'convert_out': 'bi-arrow-up-right'
+    };
+    return icons[type] || 'bi-currency-dollar';
+};
+
+const isPositive = (type) => {
+    return type === 'deposit' || type === 'mlm_reward' || type === 'convert_in';
+};
+
+onMounted(async () => {
+    await updateBalances();
+    await updateTransactions();
+    calculateStats();
+});
+
+onNotify((data) => {
+    if (data.notification?.category === 'wallet' || data.notification?.category === 'mlm') {
+        updateBalances();
+        updateTransactions().then(() => calculateStats());
+    }
+});
+</script>
+
 <template>
-    <!-- page title -->
-        <div class="container-fluid py-3">
-            <div class="row gx-3 align-items-center page-title">
-                <div class="col">
-                    <h5 class="mb-0">Wallet</h5>
-                    <p class="text-secondary small">Manage your wallet</p>
+    <div class="container mt-3" id="main-content">
+            <div class="row gx-3 gx-lg-4 align-items-center page-title mb-4 mb-lg-5">
+                <div class="col col-sm">
+                    <div class="input-group">
+                        <input v-model="searchQuery" type="search" class="form-control" placeholder="Search...">
+                        <button class="btn btn-link btn-square input-group-text border" type="button">
+                            <i class="bi bi-search"></i>
+                        </button>
+                </div>
                 </div>
                 <div class="col-auto">
-                    <select class="form-select form-select-sm border-0">
-                        <option>USD</option>
-                        <option>CAD</option>
-                        <option>AUD</option>
-                    </select>
-                </div>
-                <div class="col-auto">
-                    <button
-                        class="btn btn-link btn-square"
-                        data-bs-toggle="offcanvas"
-                        data-bs-target="#filter"
-                        data-bs-placement="end"
-                    >
+                    <button class="btn btn-link btn-square" data-bs-toggle="offcanvas" data-bs-target="#filter" data-bs-placement="end">
                         <i class="bi bi-filter"></i>
                     </button>
                 </div>
             </div>
-            <nav
-                aria-label="breadcrumb"
-                class="breadcrumb-theme mt-3 rounded d-none d-lg-block"
-            >
-                <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item bi">
-                        <a href="template-dashboard.html"
-                            ><i class="bi bi-house-door me-2"></i> Home</a
-                        >
-                    </li>
-                    <li class="breadcrumb-item bi active" aria-current="page">
-                        Wallet
-                    </li>
-                </ol>
-            </nav>
-        </div>
-        <!-- Content  -->
-        <div class="container mt-3" id="main-content">
-            <div class="row gx-3 gx-lg-4">
-                <!-- cards  -->
-                <div class="col-12 col-md-12 col-xl-6">
-                    <div class="swiper swipernav">
+            
+            <div class="row gx-3 gx-lg-4 align-items-center">
+                <div class="col-12">
+                    <div class="swiper swipernav swiper-initialized swiper-horizontal swiper-backface-hidden">
                         <div class="swiper-wrapper">
-                            <div class="swiper-slide w-auto pb-3 pb-lg-4">
-                                <a
-                                    href="template-card-details.html"
-                                    class="card adminuiux-card overflow-hidden width-300 style-none"
-                                >
-                                    <div
-                                        class="card adminuiux-card bg-theme-1 overflow-hidden w-100"
-                                    >
-                                        <div
-                                            class="coverimg h-100 w-100 position-absolute top-0 start-0 z-index-0 opacity-25"
-                                        >
-                                            <img
-                                                src="/assets/img/template/splash01.svg"
-                                                alt=""
-                                            />
+                            <div v-for="(balance, index) in balances" :key="balance.currency" class="swiper-slide w-auto pb-3 pb-lg-4" :class="{ 'swiper-slide-active': index === 0 }" style="margin-right: 20px;">
+                                <RouterLink :to="`/wallet/${balance.currency}`" class="card adminuiux-card overflow-hidden width-300 style-none">
+                                    <div class="card adminuiux-card w-100" :class="{
+                                        'bg-theme-1': index === 0,
+                                        'bg-theme-accent-1': index === 1,
+                                        'bg-r-gradient border-0 rounded-4': index === 2,
+                                        'overflow-hidden': index !== 2
+                                    }">
+                                        <div v-if="index !== 2" class="coverimg h-100 w-100 position-absolute top-0 start-0 z-index-0 opacity-25" style="background-image: url('/assets/img/template/splash01.svg');">
+                                            <img src="/assets/img/template/splash01.svg" alt="" style="display: none;">
                                         </div>
-                                        <div class="card-body z-index-1">
-                                            <div
-                                                class="row gx-3 align-items-center mb-3"
-                                            >
-                                                <div
-                                                    class="col-auto align-self-center"
-                                                >
-                                                    <i
-                                                        class="bi bi-credit-card fs-4"
-                                                    ></i>
+                                        <div class="card-body z-index-1" :class="{ 'rounded': index === 2 }">
+                                            <div class="row gx-3 align-items-center mb-2">
+                                                <div class="col-auto align-self-center">
+                                                    <i class="bi bi-credit-card fs-4"></i>
                                                 </div>
                                                 <div class="col text-end">
-                                                    <p>
-                                                        <span
-                                                            class="small opacity-50"
-                                                            >City Bank</span
-                                                        ><br /><span class=""
-                                                            >Credit Card</span
-                                                        >
-                                                    </p>
+                                                    <p><span class="small opacity-50">Wallet</span><br><span class="">Balance</span></p>
                                                 </div>
                                             </div>
-                                            <h4 class="fw-normal my-3 my-lg-4">
-                                                000 0000 0001 546598
-                                            </h4>
+                                            <h4 class="fw-normal my-4 my-lg-5">{{ balance.currency }}</h4>
                                             <div class="row gx-3">
                                                 <div class="col-auto">
-                                                    <p
-                                                        class="mb-0 small opacity-50"
-                                                    >
-                                                        Expiry
-                                                    </p>
-                                                    <p>09/023</p>
+                                                    <p class="mb-0 small opacity-50">Currency</p>
+                                                    <p>{{ balance.currency }}</p>
                                                 </div>
                                                 <div class="col text-end">
-                                                    <p
-                                                        class="mb-0 small opacity-50"
-                                                    >
-                                                        Card Holder
-                                                    </p>
-                                                    <p>adminuiux</p>
+                                                    <p class="mb-0 small opacity-50">Balance</p>
+                                                    <p>{{ parseFloat(balance.balance).toFixed(2) }}</p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="card-body z-index-1">
-                                        <div
-                                            class="row gx-3 align-items-center"
-                                        >
+                                        <div class="row gx-3 align-items-center">
                                             <div class="col">
-                                                <h5>$11200.00</h5>
+                                                <h5>{{ parseFloat(balance.balance).toFixed(2) }}</h5>
                                             </div>
                                             <div class="col-auto">
-                                                <p class="text-secondary small">
-                                                    US Dollar
-                                                </p>
+                                                <p class="text-secondary small">{{ balance.currency }}</p>
                                             </div>
                                             <div class="col-auto">
-                                                <span
-                                                    class="btn btn-square btn-sm btn-link"
-                                                    ><i
-                                                        class="bi bi-chevron-right"
-                                                    ></i
-                                                ></span>
+                                                <span class="btn btn-square btn-sm btn-link"><i class="bi bi-chevron-right"></i></span>
                                             </div>
                                         </div>
                                     </div>
-                                </a>
-                            </div>
-                            <div class="swiper-slide w-auto pb-3 pb-lg-4">
-                                <a
-                                    href="template-card-details.html"
-                                    class="card adminuiux-card overflow-hidden width-300 style-none"
-                                >
-                                    <div
-                                        class="card adminuiux-card bg-theme-accent-1 overflow-hidden w-100"
-                                    >
-                                        <div
-                                            class="coverimg h-100 w-100 position-absolute top-0 start-0 z-index-0 opacity-25"
-                                        >
-                                            <img
-                                                src="/assets/img/template/splash01.svg"
-                                                alt=""
-                                            />
-                                        </div>
-                                        <div class="card-body z-index-1">
-                                            <div
-                                                class="row gx-3 align-items-center mb-3"
-                                            >
-                                                <div
-                                                    class="col-auto align-self-center"
-                                                >
-                                                    <i
-                                                        class="bi bi-credit-card fs-4"
-                                                    ></i>
-                                                </div>
-                                                <div class="col text-end">
-                                                    <p>
-                                                        <span
-                                                            class="small opacity-50"
-                                                            >City Bank</span
-                                                        ><br /><span class=""
-                                                            >Credit Card</span
-                                                        >
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <h4 class="fw-normal my-3 my-lg-4">
-                                                000 0000 0001 56289
-                                            </h4>
-                                            <div class="row gx-3">
-                                                <div class="col-auto">
-                                                    <p
-                                                        class="mb-0 small opacity-50"
-                                                    >
-                                                        Expiry
-                                                    </p>
-                                                    <p>09/023</p>
-                                                </div>
-                                                <div class="col text-end">
-                                                    <p
-                                                        class="mb-0 small opacity-50"
-                                                    >
-                                                        Card Holder
-                                                    </p>
-                                                    <p>adminuiux</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-body z-index-1">
-                                        <div
-                                            class="row gx-3 align-items-center"
-                                        >
-                                            <div class="col">
-                                                <h5>$ 61689.00</h5>
-                                            </div>
-                                            <div class="col-auto">
-                                                <p class="text-secondary small">
-                                                    US Dollar
-                                                </p>
-                                            </div>
-                                            <div class="col-auto">
-                                                <span
-                                                    class="btn btn-square btn-sm btn-link"
-                                                    ><i
-                                                        class="bi bi-chevron-right"
-                                                    ></i
-                                                ></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                            <div class="swiper-slide w-auto pb-3 pb-lg-4">
-                                <a
-                                    href="template-card-details.html"
-                                    class="card adminuiux-card overflow-hidden width-300 style-none"
-                                >
-                                    <div
-                                        class="card adminuiux-card bg-r-gradient border-0 w-100 rounded-4"
-                                    >
-                                        <div
-                                            class="card-body z-index-1 rounded"
-                                        >
-                                            <div
-                                                class="row gx-3 align-items-center mb-3"
-                                            >
-                                                <div
-                                                    class="col-auto align-self-center"
-                                                >
-                                                    <i
-                                                        class="bi bi-credit-card fs-4"
-                                                    ></i>
-                                                </div>
-                                                <div class="col text-end">
-                                                    <p>
-                                                        <span
-                                                            class="small opacity-50"
-                                                            >City Bank</span
-                                                        ><br />
-                                                        <span class=""
-                                                            >Credit Card</span
-                                                        >
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <h4 class="fw-normal my-3 my-lg-4">
-                                                000 0000 0002 954582
-                                            </h4>
-                                            <div class="row gx-3">
-                                                <div class="col-auto">
-                                                    <p
-                                                        class="mb-0 small opacity-50"
-                                                    >
-                                                        Expiry
-                                                    </p>
-                                                    <p>09/023</p>
-                                                </div>
-                                                <div class="col text-end">
-                                                    <p
-                                                        class="mb-0 small opacity-50"
-                                                    >
-                                                        Card Holder
-                                                    </p>
-                                                    <p>adminuiux</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="card-body z-index-1">
-                                        <div
-                                            class="row gx-3 align-items-center"
-                                        >
-                                            <div class="col">
-                                                <h5>$ 5012.00</h5>
-                                            </div>
-                                            <div class="col-auto">
-                                                <p class="text-secondary small">
-                                                    US Dollar
-                                                </p>
-                                            </div>
-                                            <div class="col-auto">
-                                                <span
-                                                    class="btn btn-square btn-sm btn-link"
-                                                    ><i
-                                                        class="bi bi-chevron-right"
-                                                    ></i
-                                                ></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
+                                </RouterLink>
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="row gx-2 align-items-center justify-content-center mb-3 mb-lg-4">
+                        <div class="col-auto py-2">
+                            <RouterLink to="/pays" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Scan to pay" data-bs-original-title="Scan to pay">
+                                <i class="bi bi-qr-code"></i>
+                            </RouterLink>
                 </div>
-                <!-- summary -->
-                <div class="col-12 col-md-6 col-xl-4 col-xxl-3">
-                    <div class="card adminuiux-card mb-3 mb-lg-4">
-                        <div class="card-header">
-                            <h2 class="mb-0">$ 1152.25k</h2>
-                            <p class="text-secondary small">Total Balance</p>
-                            <!-- chart blue -->
+                        <div class="col-auto py-2">
+                            <RouterLink to="/withdraw" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Send Money" data-bs-original-title="Send Money">
+                                <i class="bi bi-arrow-up-right"></i>
+                            </RouterLink>
                         </div>
-                        <div class="card-body p-0">
-                            <div class="summarychart height-120 w-100">
-                                <canvas id="areawallet"></canvas>
-                            </div>
+                        <div class="col-auto py-2">
+                            <RouterLink to="/topup" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Receive Money" data-bs-original-title="Receive Money">
+                                <i class="bi bi-arrow-down-left"></i>
+                            </RouterLink>
                         </div>
-                        <div class="card-footer">
-                            <p class="text-secondary">
-                                Gross Income: $ 756.83
-                                <span class="text-success"
-                                    ><i class="bi bi-arrow-up-short"></i>
-                                    11.5%</span
-                                >
-                            </p>
+                        <div class="col-auto py-2">
+                            <RouterLink to="/topup" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Add Money" data-bs-original-title="Add Money">
+                                <i class="bi bi-plus-lg"></i>
+                            </RouterLink>
+                        </div>
+                        <div class="col-auto py-2">
+                            <RouterLink to="/convert" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Convert" data-bs-original-title="Convert">
+                                <i class="bi bi-arrow-left-right"></i>
+                            </RouterLink>
+                        </div>
+                        <div class="col-auto py-2">
+                            <button class="btn btn-lg btn-square btn-link" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom" title="More">
+                                <i class="bi bi-grid"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
-                <!-- counts in out -->
-                <div class="col-12 col-md-6 col-xl-2 col-xxl-3">
-                    <div class="row gx-3 gx-lg-4">
-                        <div class="col-6 col-md-12 mb-3 mb-lg-4">
-                            <div
-                                class="card adminuiux-card bg-theme-1-subtle theme-green"
-                            >
-                                <div class="card-body">
-                                    <p class="text-secondary small mb-0">
-                                        Received Money
-                                    </p>
-                                    <h2 class="mb-1">$8.34k</h2>
-                                    <span
-                                        class="badge badge-light text-bg-success"
-                                        ><i
-                                            class="me-1 bi bi-arrow-up-short"
-                                        ></i
-                                        >54.35%</span
-                                    >
-                                </div>
-                            </div>
+                
+                <div class="col-6 col-sm-6 col-md-4 col-xl-4 mb-3 mb-lg-4">
+                    <div class="card adminuiux-card">
+                        <div class="card-body">
+                            <p class="text-secondary small mb-2">Total Profit</p>
+                            <h2 class="mb-3">${{ totalReceived.toFixed(2) }}</h2>
+                            <span class="badge badge-light text-bg-success">
+                                <i class="me-1 bi bi-arrow-up-short"></i>28.50%
+                            </span>
                         </div>
-                        <div class="col-6 col-md-12 mb-3 mb-lg-4">
-                            <div
-                                class="card adminuiux-card bg-theme-1-subtle theme-red"
-                            >
-                                <div class="card-body">
-                                    <p class="text-secondary small mb-0">
-                                        Sent Money
-                                    </p>
-                                    <h2 class="mb-1">$13.20k</h2>
-                                    <span
-                                        class="badge badge-light text-bg-danger"
-                                        ><i
-                                            class="me-1 bi bi-arrow-down-short"
-                                        ></i
-                                        >18.25%</span
-                                    >
-                                </div>
-                            </div>
+                    </div>
+                        </div>
+                
+                <div class="col-6 col-sm-6 col-md-4 col-xl-4 mb-3 mb-lg-4">
+                    <div class="card adminuiux-card">
+                        <div class="card-body">
+                            <p class="text-secondary small mb-2">Best Profit</p>
+                            <h2 class="mb-3">${{ totalReceived.toFixed(2) }}</h2>
+                            <span class="badge badge-light text-bg-success">
+                                <i class="me-1 bi bi-arrow-up-short"></i>54.35%
+                            </span>
+                        </div>
+                    </div>
+                        </div>
+                
+                <div class="col-12 col-md-4 col-lg-4 col-xl-4 mb-3 mb-lg-4">
+                    <div class="card adminuiux-card">
+                        <div class="card-body">
+                            <p class="text-secondary small mb-2">Your portfolio</p>
+                            <h2 class="mb-3">${{ totalBalance.toFixed(2) }} <i class="fs-5 bi bi-arrow-up"></i></h2>
+                            <span class="badge badge-light text-bg-success">
+                                <i class="me-1 bi bi-arrow-up-short"></i>In last 7 days
+                            </span>
                         </div>
                     </div>
                 </div>
             </div>
-            <!-- send money to contacts -->
-            <div class="row gx-3 align-items-center mb-3">
-                <div class="col">
-                    <h6>Send Money</h6>
-                </div>
-                <div class="col-auto"></div>
-            </div>
-            <div class="swiper swipernav mb-3 mb-lg-4">
-                <div class="swiper-wrapper">
-                    <div class="swiper-slide w-auto">
-                        <a
-                            href="template-sendmoney.html"
-                            class="avatar avatar-40 rounded-circle border border-dotted border-theme style-none"
-                        >
-                            <span class="h4">+</span>
-                        </a>
-                    </div>
-                    <div class="swiper-slide w-auto">
-                        <div class="avatar avatar-40 rounded-circle coverimg">
-                            <img src="/assets/img/template/user-1.jpg" alt="" />
-                        </div>
-                    </div>
-                    <div class="swiper-slide w-auto">
-                        <div class="avatar avatar-40 rounded-circle coverimg">
-                            <img src="/assets/img/template/user-3.jpg" alt="" />
-                        </div>
-                    </div>
-                    <div class="swiper-slide w-auto">
-                        <div class="avatar avatar-40 rounded-circle coverimg">
-                            <img src="/assets/img/template/user-4.jpg" alt="" />
-                        </div>
-                    </div>
-                    <div class="swiper-slide w-auto">
-                        <div class="avatar avatar-40 rounded-circle coverimg">
-                            <img src="/assets/img/template/user-5.jpg" alt="" />
-                        </div>
-                    </div>
-                    <div class="swiper-slide w-auto">
-                        <div class="avatar avatar-40 rounded-circle coverimg">
-                            <img src="/assets/img/template/user-6.jpg" alt="" />
-                        </div>
-                    </div>
-                    <div class="swiper-slide w-auto">
-                        <div class="avatar avatar-40 rounded-circle coverimg">
-                            <img src="/assets/img/template/user-8.jpg" alt="" />
-                        </div>
-                    </div>
-                    <div class="swiper-slide w-auto">
-                        <div class="avatar avatar-40 rounded-circle coverimg">
-                            <img src="/assets/img/template/user-3.jpg" alt="" />
-                        </div>
-                    </div>
-                    <div class="swiper-slide w-auto">
-                        <div class="avatar avatar-40 rounded-circle coverimg">
-                            <img src="/assets/img/template/user-4.jpg" alt="" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- recent transaction list -->
+            
+            <div class="row gx-3 gx-lg-4">
+                <div class="col-12 mb-3 mb-lg-4">
             <div class="row gx-3 align-items-center mb-3">
                 <div class="col">
                     <h6>Recent Transactions</h6>
                 </div>
                 <div class="col-auto">
-                    <a
-                        href="template-transactions.html"
-                        class="btn btn-sm btn-link text-center"
-                    >
+                            <RouterLink to="/pays" class="btn btn-sm btn-link text-center">
                         View all <i class="bi bi-chevron-right"></i>
-                    </a>
+                            </RouterLink>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-12 px-0">
-                    <ul
-                        class="list-group list-group-flush border-top border-bottom bg-none mb-3 mb-lg-4"
-                    >
-                        <li class="list-group-item">
+                    
+                    <div class="swiper swipernav mb-3 mb-lg-4 swiper-initialized swiper-horizontal swiper-backface-hidden">
+                        <div class="swiper-wrapper">
+                            <div class="swiper-slide w-auto swiper-slide-active" role="group" style="margin-right: 20px;">
+                                <div class="avatar avatar-40 rounded-circle border border-dotted border-theme">
+                                    <span class="h4">+</span>
+                                </div>
+                                </div>
+                            <div v-for="(transaction, index) in transactions.slice(0, 8)" :key="index" class="swiper-slide w-auto" role="group" style="margin-right: 20px;">
+                                <div class="avatar avatar-40 rounded-circle coverimg" style="background-image: url('/assets/img/template/user-1.jpg');">
+                                    <img src="/assets/img/template/user-1.jpg" alt="" style="display: none;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card adminuiux-card overflow-hidden">
+                        <div class="card-body p-0">
+                            <ul class="list-group list-group-flush bg-none">
+                                <li v-for="transaction in transactions" :key="transaction.id" class="list-group-item" :class="{ 'theme-green': isPositive(transaction.type) }">
                             <div class="row gx-3 align-items-center">
                                 <div class="col-auto">
-                                    <div
-                                        class="avatar avatar-40 rounded-circle border coverimg"
-                                    >
-                                        <img
-                                            src="/assets/img/template/image-10.jpg"
-                                            alt=""
-                                        />
+                                            <div v-if="transaction.metadata && JSON.parse(transaction.metadata || '{}').image" class="avatar avatar-40 rounded-circle border coverimg" :style="{ backgroundImage: `url(${JSON.parse(transaction.metadata).image})` }">
+                                                <img :src="JSON.parse(transaction.metadata).image" alt="" style="display: none;">
+                                            </div>
+                                            <div v-else class="avatar avatar-40 rounded-circle border" :class="isPositive(transaction.type) ? 'border-theme-1 bg-theme-1-subtle text-theme-1' : 'border-theme-1 bg-theme-1'">
+                                                <i :class="`bi ${typeToIcon(transaction.type)} h5`"></i>
                                     </div>
                                 </div>
                                 <div class="col">
-                                    <p class="mb-1 fw-medium">Send money</p>
-                                    <p class="text-secondary small">
-                                        12 Dec 2025, 12:50 PM
-                                    </p>
+                                            <p class="mb-1 fw-medium">{{ typeToName(transaction.type) }}</p>
+                                            <p class="text-secondary small">{{ formatTimestamp(transaction.createdAt) }}</p>
                                 </div>
                                 <div class="col-auto">
-                                    <h6>- $ 150.00</h6>
+                                            <h6 :class="isPositive(transaction.type) ? 'text-theme-1' : ''">
+                                                {{ isPositive(transaction.type) ? '+' : '-' }} {{ parseFloat(transaction.amount).toFixed(2) }} {{ transaction.currency }}
+                                            </h6>
                                 </div>
                             </div>
                         </li>
-                        <li class="list-group-item">
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-md-6 col-xl-4 mb-3 mb-lg-4">
+                    <div class="card adminuiux-card overflow-hidden">
+                        <div class="card-header">
                             <div class="row gx-3 align-items-center">
                                 <div class="col-auto">
-                                    <div
-                                        class="avatar avatar-40 rounded-circle border border-theme-1 bg-theme-1"
-                                    >
-                                        <h5>Ai</h5>
+                                    <span class="avatar avatar-40 rounded bg-theme-1-subtle text-theme-1">
+                                        <i class="bi bi-wallet"></i>
+                                    </span>
                                     </div>
+                                <div class="col px-0">
+                                    <h6>My Wallet</h6>
                                 </div>
-                                <div class="col">
-                                    <p class="mb-1 fw-medium">Paid Bill</p>
-                                    <p class="text-secondary small">
-                                        11 Dec 2025, 7:15 AM
-                                    </p>
+                                <div class="col-auto px-0">
+                                    <select class="form-select form-select-sm">
+                                        <option v-for="balance in balances" :key="balance.currency" :value="balance.currency">
+                                            {{ balance.currency }}
+                                        </option>
+                                    </select>
                                 </div>
                                 <div class="col-auto">
-                                    <h6>- $ 145.00</h6>
+                                    <button class="btn btn-sm btn-square btn-link" @click="updateBalances">
+                                        <i class="bi bi-arrow-clockwise"></i>
+                                    </button>
                                 </div>
                             </div>
-                        </li>
-                        <li class="list-group-item">
-                            <div class="row gx-3 align-items-center">
-                                <div class="col-auto">
-                                    <div
-                                        class="avatar avatar-40 rounded-circle border"
-                                    >
-                                        <i class="bi bi-arrow-up-right h5"></i>
+                        </div>
+                        <div class="card-body">
+                            <h2>$ {{ totalBalance.toFixed(2) }}</h2>
+                            <p class="text-secondary">Total net revenue is $ {{ totalReceived.toFixed(2) }} <span class="text-success"><i class="bi bi-arrow-up-short"></i> 11.5%</span> increased in last week</p>
+                            <div class="summarychart height-120 w-100 mb-3">
+                                <canvas id="areachartblue1" width="658" height="240"></canvas>
+                            </div>
+                        </div>
                                     </div>
                                 </div>
+                
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="row gx-3 gx-lg-4">
+                        <div class="col-12 mb-3 mb-lg-4">
+                            <div class="card adminuiux-card">
+                                <div class="card-body">
+                                    <div class="row gx-3">
                                 <div class="col">
-                                    <p class="mb-1 fw-medium">Paid Bill</p>
-                                    <p class="text-secondary small">
-                                        10 Nov 2025, 1:20 PM
-                                    </p>
+                                            <h5>Refer friends & earn</h5>
+                                            <p class="text-secondary small">Ask your friend to join us & earn 10% of profit they made first time.</p>
+                                            <RouterLink to="/referral" class="btn btn-sm btn-outline-theme my-1">Invite to Join</RouterLink>
                                 </div>
                                 <div class="col-auto">
-                                    <h6>- $ 325.00</h6>
+                                            <div class="avatar avatar-60 rounded bg-theme-1-subtle text-theme-1">
+                                                <i class="bi bi-send h1"></i>
                                 </div>
                             </div>
-                        </li>
-                        <li class="list-group-item theme-green">
-                            <div class="row gx-3 align-items-center">
-                                <div class="col-auto">
-                                    <div
-                                        class="avatar avatar-40 rounded-circle border border-theme-1 bg-theme-1-subtle text-theme-1"
-                                    >
-                                        <i class="bi bi-arrow-down-left h5"></i>
                                     </div>
                                 </div>
-                                <div class="col">
-                                    <p class="mb-1 fw-medium">Received money</p>
-                                    <p class="text-secondary small">
-                                        5 Nov 2025, 1:45 AM
-                                    </p>
-                                </div>
-                                <div class="col-auto">
-                                    <h6 class="text-theme-1">+ $ 562.00</h6>
-                                </div>
                             </div>
-                        </li>
-                        <li class="list-group-item">
-                            <div class="row gx-3 align-items-center">
-                                <div class="col-auto">
-                                    <div
-                                        class="avatar avatar-40 rounded-circle border border-theme-1 bg-theme-1 theme-orange"
-                                    >
-                                        <h5>MS</h5>
-                                    </div>
-                                </div>
-                                <div class="col">
-                                    <p class="mb-1 fw-medium">Send money</p>
-                                    <p class="text-secondary small">
-                                        3 Nov 2025, 1:30 PM
-                                    </p>
-                                </div>
-                                <div class="col-auto">
-                                    <h6>- $ 356.00</h6>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="offcanvas offcanvas-bottom width-300 mx-auto rounded h-auto mb-3 mb-lg-4" tabindex="-1" data-bs-scroll="false" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
+                <div class="offcanvas-header justify-content-center">
+                    <p class="offcanvas-title text-center" id="offcanvasBottomLabel">Do more...</p>
+                </div>
+                <div class="offcanvas-body pb-0">
+                    <div class="row gx-3 text-center align-items-center">
+                        <div class="col-3 mb-3 mb-lg-4">
+                            <RouterLink to="/withdraw" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Send Money" data-bs-original-title="Send Money">
+                                <i class="bi bi-arrow-up-right"></i>
+                            </RouterLink>
+                        </div>
+                        <div class="col-3 mb-3 mb-lg-4">
+                            <RouterLink to="/topup" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Receive Money" data-bs-original-title="Receive Money">
+                                <i class="bi bi-arrow-down-left"></i>
+                            </RouterLink>
+                        </div>
+                        <div class="col-3 mb-3 mb-lg-4">
+                            <RouterLink to="/topup" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Add Money" data-bs-original-title="Add Money">
+                                <i class="bi bi-plus-lg"></i>
+                            </RouterLink>
+                        </div>
+                        <div class="col-3 mb-3 mb-lg-4">
+                            <RouterLink to="/convert" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Convert" data-bs-original-title="Convert">
+                                <i class="bi bi-arrow-left-right"></i>
+                            </RouterLink>
+                        </div>
+                        <div class="col-12 text-center mb-3 mb-lg-4 pt-3">
+                            <button type="button" class="btn btn-sm btn-link theme-red" data-bs-dismiss="offcanvas" aria-label="Close">Close</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <!-- mobile footer -->
-        <footer class="adminuiux-mobile-footer hide-on-scrolldown style-4">
-            <ul class="nav nav-pills justify-content-center">
-                <li class="nav-item">
-                    <a class="nav-link" href="template-dashboard.html">
-                        <span>
-                            <i class="nav-icon bi bi-house-door"></i>
-                            <span class="nav-text">Home</span>
-                        </span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="template-wallet.html">
-                        <span>
-                            <i class="nav-icon bi bi-wallet"></i>
-                            <span class="nav-text">Wallet</span>
-                        </span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="template-statistics.html" class="nav-link">
-                        <span>
-                            <i class="nav-icon bi bi-clipboard-data"></i>
-                            <span class="nav-text">Statistic</span>
-                        </span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="template-profile.html">
-                        <span>
-                            <i
-                                class="nav-icon avatar avatar-20 coverimg rounded-circle"
-                            >
-                                <img
-                                    src="/assets/img/template/user-4.jpg"
-                                    alt=""
-                                />
-                            </i>
-                            <span class="nav-text">Profile</span>
-                        </span>
-                    </a>
-                </li>
-            </ul>
-        </footer>
 </template>
