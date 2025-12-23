@@ -183,7 +183,7 @@ onUnmounted(() => {
                                 <div class="card border shadow-sm">
                                     <div class="card-body p-4 p-md-5">
                                         <div class="text-center mb-4">
-                                            <button @click="router.push('/')" class="btn btn-link p-0 mb-3 text-start">
+                                            <button @click="router.push('/')" class="btn-back-link">
                                                 <i class="bi bi-arrow-left me-2"></i>Назад
                                             </button>
                                             <h3 class="mb-2">Регистрация</h3>
@@ -298,7 +298,7 @@ onUnmounted(() => {
                                                     />
                                                     <label class="form-check-label" for="agreeToTerms">
                                                         Я согласен с 
-                                                        <a href="#" class="text-decoration-none" @click.prevent="openTermsModal">договором оферты</a>
+                                                        <a href="#" class="link-terms" @click.prevent="openTermsModal">договором оферты</a>
                                                     </label>
                                                 </div>
                                                 <div v-if="validationErrors.agreeToTerms" class="invalid-feedback d-block">
@@ -315,7 +315,7 @@ onUnmounted(() => {
                                         <div class="text-center">
                                             <p class="mb-0">
                                                 Уже зарегистрированы?
-                                                <RouterLink to="/login" class="text-decoration-none">Войти</RouterLink>
+                                                <RouterLink to="/login" class="link-login">Войти</RouterLink>
                                             </p>
                                         </div>
                                     </div>
@@ -328,3 +328,67 @@ onUnmounted(() => {
         </div>
     </main>
 </template>
+
+<style scoped>
+.btn-back-link {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #6c757d;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.btn-back-link:hover {
+    color: #000;
+    text-decoration: none;
+}
+
+.btn-back-link:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.link-terms {
+    color: #0d6efd;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.link-terms:hover {
+    color: #0a58ca;
+    text-decoration: underline;
+}
+
+.link-login {
+    color: #0d6efd;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    font-weight: 500;
+}
+
+.link-login:hover {
+    color: #0a58ca;
+    text-decoration: underline;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: #fff;
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.form-control:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+</style>

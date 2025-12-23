@@ -8,23 +8,14 @@ const { showToast } = useToast();
 const amount = ref(100.00);
 const fromCurrency = ref('RUB');
 const toCurrency = ref('IMI');
-const exchangeRate = ref(2); // 1 RUB = 1.38 IMI
-const convertedAmount = ref(132.00);
+const exchangeRate = ref(1);
+const convertedAmount = ref(100.00);
 
 const errorMessage = ref('');
 const showError = ref(false);
 
-// Обновляем конвертированную сумму при изменении входных данных
 const updateConvertedAmount = () => {
-    // Определяем текущий курс в зависимости от направления обмена
-    let currentRate = exchangeRate.value;
-
-    // Если конвертируем из IMI в RUB, используем обратный курс
-    if (fromCurrency.value === 'IMI' && toCurrency.value === 'RUB') {
-        currentRate = 1 / exchangeRate.value;
-    }
-
-    convertedAmount.value = (amount.value * currentRate).toFixed(2);
+    convertedAmount.value = (amount.value * exchangeRate.value).toFixed(2);
 };
 
 // Функция для переключения валют
@@ -61,7 +52,7 @@ const handleExchange = async () => {
             fromCurrency: fromCurrency.value,
             toCurrency: toCurrency.value,
             amount: parseFloat(amount.value),
-            rate: fromCurrency.value == 'IMI' ? 1 / exchangeRate.value : exchangeRate.value
+            rate: exchangeRate.value
         };
 
         // Отправляем запрос на сервер
@@ -125,7 +116,7 @@ const watchInputs = () => {
                 <div class="col-12 col-md-7 col-lg-6 col-xl-5 col-xxl-4 mb-auto">
                     <input v-model="amount" @input="updateConvertedAmount" type="number"
                         class="form-control form-control-lg text-center mb-3 fs-2 fw-bold" id="ihave"
-                        placeholder="Convert Amount..." />
+                        placeholder="Сумма для конвертации..." />
                     <div class="row gx-3 mb-3">
                         <div class="col">
                             <div class="form-floating mb-1">
@@ -167,7 +158,7 @@ const watchInputs = () => {
                         </h5>
                         <h1 class="text-theme-1">{{ convertedAmount }}</h1>
                         <p class="text-secondary small mb-3">
-                            {{ toCurrency }} coins
+                            {{ toCurrency }} монет
                         </p>
                     </div>
 
@@ -176,7 +167,7 @@ const watchInputs = () => {
                         <br />
                         {{ errorMessage }}
                         <button type="button" class="btn-close" @click="showError = false" data-bs-dismiss="alert"
-                            aria-label="Close"></button>
+                            aria-label="Закрыть"></button>
                     </div>
                 </div>
                 <div class="col-12 mb-3 mb-lg-4"></div>

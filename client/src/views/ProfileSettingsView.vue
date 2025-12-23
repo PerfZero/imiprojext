@@ -258,7 +258,7 @@ const updateProfile = async () => {
                     <br />
                     {{ errorMessage }}
                     <button type="button" class="btn-close" @click="showError = false" data-bs-dismiss="alert"
-                        aria-label="Close"></button>
+                        aria-label="Закрыть"></button>
                 </div>
                 <div class="col"><button @click="updateProfile" class="btn btn-theme">Сохранить</button></div>
                 <div class="col-auto"><button class="btn btn-link theme-red">Отмена</button></div>

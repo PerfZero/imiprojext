@@ -42,7 +42,7 @@ onMounted(() => {
                 <img src="/assets/img/favicon.png" class="rounded me-2" alt="..." />
                 <strong class="me-auto">Установить приложение?</strong>
                 <!-- <small>10 sec ago</small> -->
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Закрыть"></button>
             </div>
             <div class="toast-body">
                 <button type="button" class="btn btn-outline-info" @click="btnInstallAppClick">
@@ -57,10 +57,10 @@ onMounted(() => {
                 <img src="/assets/img/favicon.png" class="rounded me-2" alt="..." />
                 <strong class="me-auto">Adminuiux</strong>
                 <!-- <small>10 sec ago</small> -->
-                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Закрыть"></button>
             </div>
             <div class="toast-body">
-                Hello, Beautiful world! This is a toast message ❤️.
+                Привет, прекрасный мир! Это сообщение уведомления ❤️.
             </div>
         </div>
     </div>

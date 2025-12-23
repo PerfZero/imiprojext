@@ -126,7 +126,7 @@ onNotify((data) => {
             <div class="row gx-3 gx-lg-4 align-items-center page-title mb-4 mb-lg-5">
                 <div class="col col-sm">
                     <div class="input-group">
-                        <input v-model="searchQuery" type="search" class="form-control" placeholder="Search...">
+                        <input v-model="searchQuery" type="search" class="form-control" placeholder="Поиск...">
                         <button class="btn btn-link btn-square input-group-text border" type="button">
                             <i class="bi bi-search"></i>
                         </button>
@@ -160,18 +160,18 @@ onNotify((data) => {
                                                     <i class="bi bi-credit-card fs-4"></i>
                                                 </div>
                                                 <div class="col text-end">
-                                                    <p><span class="small opacity-50">IMI CLUB</span><br><span class="">Credit Card</span></p>
+                                                    <p><span class="small opacity-50">IMI CLUB</span><br><span class="">Кредитная карта</span></p>
                                                 </div>
                                             </div>
                                             <h4 class="fw-normal my-4 my-lg-5">{{ generateCardNumber(session.data?.user?.id || '', balance.currency, index) }}</h4>
                                             <div class="row gx-3">
                                                 <div class="col-auto">
-                                                    <p class="mb-0 small opacity-50">Expiry</p>
+                                                    <p class="mb-0 small opacity-50">Срок действия</p>
                                                     <p>{{ generateExpiryDate(session.data?.user?.id || '', balance.currency, index) }}</p>
                                                 </div>
                                                 <div class="col text-end">
-                                                    <p class="mb-0 small opacity-50">Card Holder</p>
-                                                    <p>{{ session.data?.user?.name || 'User' }}</p>
+                                                    <p class="mb-0 small opacity-50">Держатель карты</p>
+                                                    <p>{{ session.data?.user?.name || 'Пользователь' }}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -201,32 +201,32 @@ onNotify((data) => {
                             </RouterLink>
                         </div>
                         <div class="col-auto py-2">
-                            <RouterLink to="/pays" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Scan to pay" data-bs-original-title="Scan to pay">
+                            <RouterLink to="/pays" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Сканировать для оплаты" data-bs-original-title="Сканировать для оплаты">
                                 <i class="bi bi-qr-code"></i>
                             </RouterLink>
                 </div>
                         <div class="col-auto py-2">
-                            <RouterLink to="/withdraw" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Send Money" data-bs-original-title="Send Money">
+                            <RouterLink to="/withdraw" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Отправить деньги" data-bs-original-title="Отправить деньги">
                                 <i class="bi bi-arrow-up-right"></i>
                             </RouterLink>
                         </div>
                         <div class="col-auto py-2">
-                            <RouterLink to="/topup" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Receive Money" data-bs-original-title="Receive Money">
+                            <RouterLink to="/topup" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Получить деньги" data-bs-original-title="Получить деньги">
                                 <i class="bi bi-arrow-down-left"></i>
                             </RouterLink>
                         </div>
                         <div class="col-auto py-2">
-                            <RouterLink to="/topup" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Add Money" data-bs-original-title="Add Money">
+                            <RouterLink to="/topup" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Добавить деньги" data-bs-original-title="Добавить деньги">
                                 <i class="bi bi-plus-lg"></i>
                             </RouterLink>
                         </div>
                         <div class="col-auto py-2">
-                            <RouterLink to="/convert" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Convert" data-bs-original-title="Convert">
+                            <RouterLink to="/convert" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Конвертировать" data-bs-original-title="Конвертировать">
                                 <i class="bi bi-arrow-left-right"></i>
                             </RouterLink>
                         </div>
                         <div class="col-auto py-2">
-                            <button class="btn btn-lg btn-square btn-link" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom" title="More">
+                            <button class="btn btn-lg btn-square btn-link" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom" title="Больше">
                                 <i class="bi bi-grid"></i>
                             </button>
                         </div>
@@ -236,7 +236,7 @@ onNotify((data) => {
                 <div class="col-6 col-sm-6 col-md-4 col-xl-4 mb-3 mb-lg-4">
                     <div class="card adminuiux-card">
                         <div class="card-body">
-                            <p class="text-secondary small mb-2">Total Profit</p>
+                            <p class="text-secondary small mb-2">Общая прибыль</p>
                             <h2 class="mb-3">${{ totalReceived.toFixed(2) }}</h2>
                             <span class="badge badge-light text-bg-success">
                                 <i class="me-1 bi bi-arrow-up-short"></i>28.50%
@@ -248,7 +248,7 @@ onNotify((data) => {
                 <div class="col-6 col-sm-6 col-md-4 col-xl-4 mb-3 mb-lg-4">
                     <div class="card adminuiux-card">
                         <div class="card-body">
-                            <p class="text-secondary small mb-2">Best Profit</p>
+                            <p class="text-secondary small mb-2">Лучшая прибыль</p>
                             <h2 class="mb-3">${{ totalReceived.toFixed(2) }}</h2>
                             <span class="badge badge-light text-bg-success">
                                 <i class="me-1 bi bi-arrow-up-short"></i>54.35%
@@ -260,10 +260,10 @@ onNotify((data) => {
                 <div class="col-12 col-md-4 col-lg-4 col-xl-4 mb-3 mb-lg-4">
                     <div class="card adminuiux-card">
                         <div class="card-body">
-                            <p class="text-secondary small mb-2">Your portfolio</p>
+                            <p class="text-secondary small mb-2">Ваш портфель</p>
                             <h2 class="mb-3">${{ totalBalance.toFixed(2) }} <i class="fs-5 bi bi-arrow-up"></i></h2>
                             <span class="badge badge-light text-bg-success">
-                                <i class="me-1 bi bi-arrow-up-short"></i>In last 7 days
+                                <i class="me-1 bi bi-arrow-up-short"></i>За последние 7 дней
                             </span>
                         </div>
                     </div>
@@ -274,11 +274,11 @@ onNotify((data) => {
                 <div class="col-12 mb-3 mb-lg-4">
             <div class="row gx-3 align-items-center mb-3">
                 <div class="col">
-                    <h6>Recent Transactions</h6>
+                    <h6>Недавние транзакции</h6>
                 </div>
                 <div class="col-auto">
                             <RouterLink to="/pays" class="btn btn-sm btn-link text-center">
-                        View all <i class="bi bi-chevron-right"></i>
+                        Показать все <i class="bi bi-chevron-right"></i>
                             </RouterLink>
                 </div>
             </div>
@@ -337,7 +337,7 @@ onNotify((data) => {
                                     </span>
                                     </div>
                                 <div class="col px-0">
-                                    <h6>My Wallet</h6>
+                                    <h6>Мой кошелек</h6>
                                 </div>
                                 <div class="col-auto px-0">
                                     <select class="form-select form-select-sm">
@@ -355,7 +355,7 @@ onNotify((data) => {
                         </div>
                         <div class="card-body">
                             <h2>$ {{ totalBalance.toFixed(2) }}</h2>
-                            <p class="text-secondary">Total net revenue is $ {{ totalReceived.toFixed(2) }} <span class="text-success"><i class="bi bi-arrow-up-short"></i> 11.5%</span> increased in last week</p>
+                            <p class="text-secondary">Общий чистый доход составляет $ {{ totalReceived.toFixed(2) }} <span class="text-success"><i class="bi bi-arrow-up-short"></i> 11.5%</span> увеличился на прошлой неделе</p>
                             <div class="summarychart height-120 w-100 mb-3">
                                 <canvas id="areachartblue1" width="658" height="240"></canvas>
                             </div>
@@ -370,9 +370,9 @@ onNotify((data) => {
                                 <div class="card-body">
                                     <div class="row gx-3">
                                 <div class="col">
-                                            <h5>Refer friends & earn</h5>
-                                            <p class="text-secondary small">Ask your friend to join us & earn 10% of profit they made first time.</p>
-                                            <RouterLink to="/referral" class="btn btn-sm btn-outline-theme my-1">Invite to Join</RouterLink>
+                                            <h5>Пригласите друзей и заработайте</h5>
+                                            <p class="text-secondary small">Попросите друга присоединиться к нам и заработайте 10% от прибыли, которую они получили в первый раз.</p>
+                                            <RouterLink to="/referral" class="btn btn-sm btn-outline-theme my-1">Пригласить присоединиться</RouterLink>
                                 </div>
                                 <div class="col-auto">
                                             <div class="avatar avatar-60 rounded bg-theme-1-subtle text-theme-1">
@@ -389,7 +389,7 @@ onNotify((data) => {
             
             <div class="offcanvas offcanvas-bottom width-300 mx-auto rounded h-auto mb-3 mb-lg-4" tabindex="-1" data-bs-scroll="false" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
                 <div class="offcanvas-header justify-content-center">
-                    <p class="offcanvas-title text-center" id="offcanvasBottomLabel">Do more...</p>
+                    <p class="offcanvas-title text-center" id="offcanvasBottomLabel">Сделать больше...</p>
                 </div>
                 <div class="offcanvas-body pb-0">
                     <div class="row gx-3 text-center align-items-center">
@@ -399,27 +399,27 @@ onNotify((data) => {
                             </RouterLink>
                         </div>
                         <div class="col-3 mb-3 mb-lg-4">
-                            <RouterLink to="/withdraw" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Send Money" data-bs-original-title="Send Money">
+                            <RouterLink to="/withdraw" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Отправить деньги" data-bs-original-title="Отправить деньги">
                                 <i class="bi bi-arrow-up-right"></i>
                             </RouterLink>
                         </div>
                         <div class="col-3 mb-3 mb-lg-4">
-                            <RouterLink to="/topup" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Receive Money" data-bs-original-title="Receive Money">
+                            <RouterLink to="/topup" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Получить деньги" data-bs-original-title="Получить деньги">
                                 <i class="bi bi-arrow-down-left"></i>
                             </RouterLink>
                         </div>
                         <div class="col-3 mb-3 mb-lg-4">
-                            <RouterLink to="/topup" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Add Money" data-bs-original-title="Add Money">
+                            <RouterLink to="/topup" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Добавить деньги" data-bs-original-title="Добавить деньги">
                                 <i class="bi bi-plus-lg"></i>
                             </RouterLink>
                         </div>
                         <div class="col-3 mb-3 mb-lg-4">
-                            <RouterLink to="/convert" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Convert" data-bs-original-title="Convert">
+                            <RouterLink to="/convert" class="btn btn-lg btn-square btn-outline-theme" data-bs-toggle="tooltip" aria-label="Конвертировать" data-bs-original-title="Конвертировать">
                                 <i class="bi bi-arrow-left-right"></i>
                             </RouterLink>
                         </div>
                         <div class="col-12 text-center mb-3 mb-lg-4 pt-3">
-                            <button type="button" class="btn btn-sm btn-link theme-red" data-bs-dismiss="offcanvas" aria-label="Close">Close</button>
+                            <button type="button" class="btn btn-sm btn-link theme-red" data-bs-dismiss="offcanvas" aria-label="Закрыть">Закрыть</button>
                         </div>
                     </div>
                 </div>

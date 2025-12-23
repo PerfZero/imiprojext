@@ -86,16 +86,16 @@ onMounted(() => {
     <div class="container-fluid py-3">
         <div class="row gx-3 align-items-center page-title">
             <div class="col col-sm">
-                <h5 class="mb-0">Send Money</h5>
-                <p class="text-secondary small">Instant fund transfer to contacts</p>
+                <h5 class="mb-0">Отправить деньги</h5>
+                <p class="text-secondary small">Мгновенный перевод средств контактам</p>
             </div>
         </div>
         <nav aria-label="breadcrumb" class="breadcrumb-theme mt-3 rounded d-none d-lg-block">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item bi">
-                    <RouterLink to="/dashboard"><i class="bi bi-house-door me-2"></i> Home</RouterLink>
+                    <RouterLink to="/dashboard"><i class="bi bi-house-door me-2"></i> Главная</RouterLink>
                 </li>
-                <li class="breadcrumb-item bi active" aria-current="page">Send Money</li>
+                <li class="breadcrumb-item bi active" aria-current="page">Отправить деньги</li>
             </ol>
         </nav>
     </div>
@@ -109,27 +109,10 @@ onMounted(() => {
                         type="text" 
                         class="form-control" 
                         id="contact" 
-                        placeholder="Enter card number..."
+                        placeholder="Введите номер карты..."
                         maxlength="19"
                     />
                     <label for="contact">Номер карты получателя</label>
-                </div>
-
-                <p class="small text-secondary text-center">Recently connected contacts</p>
-                
-                <div class="swiper swipernav mb-3 swiper-initialized swiper-horizontal swiper-backface-hidden">
-                    <div class="swiper-wrapper">
-                        <div class="swiper-slide w-auto swiper-slide-active" role="group" style="margin-right: 20px;">
-                            <div class="avatar avatar-40 rounded-circle border border-dotted border-theme">
-                                <span class="h4">+</span>
-                            </div>
-                        </div>
-                        <div v-for="(balance, index) in balances.slice(0, 8)" :key="index" class="swiper-slide w-auto" role="group" style="margin-right: 20px;">
-                            <div class="avatar avatar-40 rounded-circle coverimg" style="background-image: url('/assets/img/template/user-1.jpg');">
-                                <img src="/assets/img/template/user-1.jpg" alt="" style="display: none;">
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <input 
@@ -137,7 +120,7 @@ onMounted(() => {
                     type="number" 
                     class="form-control form-control-lg text-center mb-3 fs-2 fw-bold" 
                     id="ihavei" 
-                    placeholder="Amount..." 
+                    placeholder="Сумма..." 
                     step="0.01"
                     min="0.01"
                 />
@@ -147,10 +130,10 @@ onMounted(() => {
                         <div class="form-floating mb-1">
                             <select v-model="fromCurrency" class="form-select" id="ihavecurrencyi">
                                 <option v-for="balance in balances" :key="balance.currency" :value="balance.currency">
-                                    {{ balance.currency }} Wallet
+                                    {{ balance.currency }} Кошелек
                                 </option>
                             </select>
-                            <label for="ihavecurrencyi">From...</label>
+                            <label for="ihavecurrencyi">Откуда...</label>
                         </div>
                         <p class="small text-secondary text-center">
                             {{ fromBalance ? parseFloat(fromBalance.balance).toFixed(2) : '0.00' }} {{ fromCurrency }}
@@ -168,7 +151,7 @@ onMounted(() => {
                                     {{ balance.currency }}
                                 </option>
                             </select>
-                            <label for="ihavecurrency2i">Send in...</label>
+                            <label for="ihavecurrency2i">Отправить в...</label>
                         </div>
                         <p class="small text-secondary text-center">
                             {{ amount.toFixed(2) }} {{ toCurrency }}
@@ -177,21 +160,21 @@ onMounted(() => {
                 </div>
                 
                 <div class="text-center">
-                    <h5 class="fw-normal"><b class="fw-bold">Great!</b> You are going to send</h5>
+                    <h5 class="fw-normal"><b class="fw-bold">Отлично!</b> Вы собираетесь отправить</h5>
                     <h1 class="mb-0 text-theme-1">{{ amount.toFixed(2) }}</h1>
-                    <p class="text-secondary small">in {{ toCurrency }}</p>
+                    <p class="text-secondary small">в {{ toCurrency }}</p>
                 </div>
 
                 <div v-if="showError" class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
                     <strong><i class="bi bi-exclamation-triangle me-1"></i>Ошибка!</strong><br>
                     <small>{{ errorMessage }}</small>
-                    <button type="button" class="btn-close" @click="showError = false" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" @click="showError = false" data-bs-dismiss="alert" aria-label="Закрыть"></button>
                 </div>
 
                 <div v-else-if="!canSend && fromBalance" class="alert alert-danger alert-dismissible fade show mt-4" role="alert">
-                    <strong><i class="bi bi-exclamation-triangle me-1"></i> Low balance!</strong><br>
-                    <small>Your wallet account does not have enough money to send. Kindly add money or choose different wallet account.</small>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <strong><i class="bi bi-exclamation-triangle me-1"></i> Недостаточно средств!</strong><br>
+                    <small>На вашем счете недостаточно средств для отправки. Пожалуйста, пополните баланс или выберите другой кошелек.</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть"></button>
                 </div>
             </div>
             
@@ -203,7 +186,7 @@ onMounted(() => {
                     :disabled="loading || !canSend || !cardNumber.trim()"
                 >
                     <span v-if="loading" class="spinner-border spinner-border-sm me-2"></span>
-                    Send Now
+                    Отправить сейчас
                 </button>
             </div>
         </div>

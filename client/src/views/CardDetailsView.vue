@@ -151,18 +151,18 @@ onNotify((data) => {
                                     <i class="bi bi-credit-card fs-4"></i>
                                 </div>
                                 <div class="col text-end">
-                                    <p><span class="small opacity-50">IMI CLUB</span><br><span class="">Credit Card</span></p>
+                                    <p><span class="small opacity-50">IMI CLUB</span><br><span class="">Кредитная карта</span></p>
                                 </div>
                             </div>
                             <h4 class="fw-normal my-4 my-md-5">{{ cardNumber }}</h4>
                             <div class="row gx-3">
                                 <div class="col-auto">
-                                    <p class="mb-0 small opacity-50">Expiry</p>
+                                    <p class="mb-0 small opacity-50">Срок действия</p>
                                     <p>{{ expiryDate }}</p>
                                 </div>
                                 <div class="col text-end">
-                                    <p class="mb-0 small opacity-50">Card Holder</p>
-                                    <p>{{ session.data?.user?.name || 'User' }}</p>
+                                    <p class="mb-0 small opacity-50">Держатель карты</p>
+                                    <p>{{ session.data?.user?.name || 'Пользователь' }}</p>
                                 </div>
                             </div>
                         </div>
@@ -186,7 +186,7 @@ onNotify((data) => {
                     <div class="col-6 col-md-12 mb-3 mb-lg-4">
                         <div class="card adminuiux-card bg-theme-1-subtle theme-red">
                             <div class="card-body">
-                                <p class="text-secondary small mb-2">Sent Money</p>
+                                <p class="text-secondary small mb-2">Отправлено денег</p>
                                 <h2 class="mb-3">{{ (sentMoney / 1000).toFixed(2) }}k</h2>
                                 <span class="badge badge-light text-bg-danger">
                                     <i class="me-1 bi bi-arrow-down-short"></i>18.25%
@@ -197,7 +197,7 @@ onNotify((data) => {
                     <div class="col-6 col-md-12 mb-3 mb-lg-4">
                         <div class="card adminuiux-card bg-theme-1-subtle theme-green">
                             <div class="card-body">
-                                <p class="text-secondary small mb-2">Received Money</p>
+                                <p class="text-secondary small mb-2">Получено денег</p>
                                 <h2 class="mb-3">{{ (receivedMoney / 1000).toFixed(2) }}k</h2>
                                 <span class="badge badge-light text-bg-success">
                                     <i class="me-1 bi bi-arrow-up-short"></i>54.35%
@@ -211,7 +211,7 @@ onNotify((data) => {
 
         <div class="row gx-3 align-items-center mb-3">
             <div class="col">
-                <h6>Send Money</h6>
+                <h6>Отправить деньги</h6>
             </div>
             <div class="col-auto">
             </div>
@@ -234,11 +234,11 @@ onNotify((data) => {
         
         <div class="row gx-3 align-items-center mb-3">
             <div class="col">
-                <h6>Recent Transactions</h6>
+                <h6>Недавние транзакции</h6>
             </div>
             <div class="col-auto">
                 <RouterLink to="/pays" class="btn btn-sm btn-link text-center">
-                    View all <i class="bi bi-chevron-right"></i>
+                    Показать все <i class="bi bi-chevron-right"></i>
                 </RouterLink>
             </div>
         </div>

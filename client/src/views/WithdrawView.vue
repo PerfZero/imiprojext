@@ -92,7 +92,7 @@ const handleAmountChange = () => {
                     <div class="row mb-4">
                         <div class="col">
                             <input v-model.number="amount" @input="handleAmountChange" type="number"
-                                class="form-control form-control-lg text-center" placeholder="Add Amount..." />
+                                class="form-control form-control-lg text-center" placeholder="Добавить сумму..." />
                         </div>
                         <div class="col-auto">
                             <select v-model="currency" class="form-select form-select-lg">
@@ -135,7 +135,7 @@ const handleAmountChange = () => {
                         <br />
                         {{ errorMessage }}
                         <button type="button" class="btn-close" @click="showError = false" data-bs-dismiss="alert"
-                            aria-label="Close"></button>
+                            aria-label="Закрыть"></button>
                     </div>
                     <div class="col-12 mb-3 mb-lg-4"></div>
                     <div class="col-12 col-md-auto mx-auto mb-3 mb-lg-4 mt-auto">

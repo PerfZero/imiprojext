@@ -58,7 +58,7 @@ watch(
             <!-- <div class="px-3 not-iconic mt-3">
                 <div class="row gx-3 gx-lg-4">
                     <div class="col align-self-center menu-name">
-                        <h6>Main navigation</h6>
+                        <h6>Главная навигация</h6>
                     </div>
                     <div class="col-auto">
                         <a
@@ -74,7 +74,7 @@ watch(
                     </div>
                 </div>
             </div> -->
-            <!-- user information -->
+            <!-- информация о пользователе -->
             <RouterLink to="/profile" class="px-3 pt-4 not-iconic d-block text-decoration-none" id="usersidebarprofile">
                 <div class="d-flex align-items-center">
                     <div class="flex-shrink-0 me-3">
@@ -89,7 +89,7 @@ watch(
                 </div>
             </RouterLink>
             <hr class="border-1 opacity-20" style="color: white; opacity: 0.1" />
-            <!-- user menu navigation -->
+            <!-- навигация меню пользователя -->
             <ul class="nav flex-column menu-active-line">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle op" data-bs-toggle="dropdown" aria-expanded="false"

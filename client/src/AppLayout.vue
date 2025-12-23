@@ -588,8 +588,7 @@ const route = useRoute();
             </div>
         </div>
 
-        <!-- Footer -->
-        <!-- <Footer /> -->
+        <Footer />
 
         <AppBar />
     </div>
