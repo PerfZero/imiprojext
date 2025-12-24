@@ -1,4 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { loadSessionToken, getSessionToken, isNativePlatform } from "@/utils/sessionStorage";
+import { API_BASE_URL } from "@/utils/apiConfig";
 import HomeView from "@/views/HomeView.vue";
 import AboutView from "@/views/AboutView.vue";
 import PartnersView from "@/views/PartnersView.vue";
@@ -319,9 +321,58 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to, from, next) => {
+  // Загружаем токен из Preferences (асинхронно)
+  const token = await loadSessionToken();
+  const publicPages = ['home', 'about', 'partners', 'login', 'signup', 'ref'];
+  
+  console.log('[Router] Checking route:', to.name, 'Token exists:', !!token);
+  
+  // Если есть токен и пользователь на публичной странице — проверяем сессию
+  if (token && publicPages.includes(to.name as string)) {
+    try {
+      const baseUrl = isNativePlatform() ? API_BASE_URL : '';
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (isNativePlatform()) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      console.log('[Router] Checking session at:', `${baseUrl}/api/auth/get-session`);
+      
+      const response = await fetch(`${baseUrl}/api/auth/get-session`, {
+        credentials: 'include',
+        headers,
+      });
+      const session = await response.json();
+      
+      console.log('[Router] Session response:', session?.user ? 'User found' : 'No user');
+      
+      if (session && session.user) {
+        // Пользователь авторизован — перенаправляем на dashboard
+        console.log('[Router] User authenticated, redirecting to dashboard');
+        return next({ name: "dashboard" });
+      }
+    } catch (error) {
+      console.error('[Router] Error checking session:', error);
+    }
+  }
+  
+  // Проверка для админских страниц
   if (to.meta.requiresAdmin) {
     try {
-      const response = await fetch("/api/auth/get-session");
+      const baseUrl = isNativePlatform() ? API_BASE_URL : '';
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (isNativePlatform() && token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const response = await fetch(`${baseUrl}/api/auth/get-session`, {
+        credentials: 'include',
+        headers,
+      });
       const session = await response.json();
       
       if (!session || !session.user) {
@@ -335,7 +386,7 @@ router.beforeEach(async (to, from, next) => {
       return next({ name: "login" });
     }
   }
-  next();
+  return next();
 });
 
 export default router;

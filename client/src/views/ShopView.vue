@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick, watch } from 'vue';
 import apiService from '@/services/apiService';
+import { getImageUrl } from '@/utils/apiConfig';
 
 const errorMessage = ref('');
 const showError = ref(false);
@@ -193,7 +194,7 @@ onMounted(() => {
                                     </div>
                                     <div class="col-auto position-relative" v-if="product.image">
                                         <figure class="avatar avatar-80 coverimg rounded">
-                                            <img :src="product.image" class="mw-100" alt="">
+                                            <img :src="getImageUrl(product.image)" class="mw-100" alt="">
                                         </figure>
                                     </div>
                                 </div>
@@ -252,7 +253,7 @@ onMounted(() => {
                             <figure class="w-100 height-150 rounded coverimg bg-light d-flex align-items-center justify-content-center mb-0">
                                 <img
                                     v-if="product.image"
-                                    :src="product.image"
+                                    :src="getImageUrl(product.image)"
                                     :alt="product.name"
                                     class="w-100 h-100"
                                     style="object-fit: cover;"

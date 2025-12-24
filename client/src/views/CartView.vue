@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import apiService from '@/services/apiService';
+import { getImageUrl } from '@/utils/apiConfig';
 
 const router = useRouter();
 const loading = ref(true);
@@ -162,7 +163,7 @@ onMounted(() => {
                         <div class="col-auto">
                             <figure
                                 class="avatar avatar-60 coverimg rounded bg-light"
-                                :style="item.product?.image ? `background-image: url('${item.product.image}')` : ''"
+                                :style="item.product?.image ? `background-image: url('${getImageUrl(item.product.image)}')` : ''"
                             >
                                 <i v-if="!item.product?.image" class="bi bi-image text-muted"></i>
                             </figure>

@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import apiService from '@/services/apiService';
+import { getImageUrl } from '@/utils/apiConfig';
 
 const route = useRoute();
 const router = useRouter();
@@ -19,10 +20,10 @@ const productId = computed(() => Number(route.params.id));
 const images = computed(() => {
     if (!product.value) return [];
     if (product.value.images && product.value.images.length > 0) {
-        return product.value.images;
+        return product.value.images.map(img => ({ ...img, url: getImageUrl(img.url) }));
     }
     if (product.value.image) {
-        return [{ id: 0, url: product.value.image, isMain: true }];
+        return [{ id: 0, url: getImageUrl(product.value.image), isMain: true }];
     }
     return [];
 });

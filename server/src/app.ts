@@ -84,6 +84,64 @@ export function createApp() {
         res.json(swaggerSpec);
     });
 
+    // Кастомный эндпоинт для проверки сессии мобильным приложением
+    app.get("/api/auth/get-session", async (req, res, next) => {
+        // Сначала пробуем стандартный способ (cookies)
+        let session = await auth.api.getSession({
+            headers: fromNodeHeaders(req.headers),
+        });
+        
+        // Если не нашли через cookies — пробуем Authorization header
+        if (!session) {
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                const token = authHeader.substring(7);
+                console.log("[Get-Session] Token from Authorization header:", token);
+                
+                try {
+                    const now = Date.now();
+                    const sessionRows = await db
+                        .select()
+                        .from(sessionTable)
+                        .where(
+                            and(
+                                eq(sessionTable.token, token),
+                                gt(sessionTable.expiresAt, new Date(now))
+                            )
+                        )
+                        .limit(1);
+                    
+                    const sessionRow = sessionRows[0];
+                    if (sessionRow) {
+                        const userRows = await db
+                            .select()
+                            .from(userTable)
+                            .where(eq(userTable.id, sessionRow.userId))
+                            .limit(1);
+                        
+                        const userRow = userRows[0];
+                        if (userRow) {
+                            session = {
+                                user: userRow,
+                                session: sessionRow
+                            } as any;
+                            console.log("[Get-Session] Session found from DB:", sessionRow.userId);
+                        }
+                    } else {
+                        console.log("[Get-Session] Session not found in DB for token");
+                    }
+                } catch (e) {
+                    console.error("[Get-Session] Error getting session from DB:", e);
+                }
+            }
+        }
+        
+        if (session) {
+            return res.json(session);
+        }
+        return res.json({ user: null, session: null });
+    });
+
     app.all("/api/auth/{*any}", authHandler);
     app.use(async (req, res, next) => {
         let session = await auth.api.getSession({
