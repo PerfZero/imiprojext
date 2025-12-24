@@ -17,9 +17,12 @@ class ApiService {
 
         if (isNativePlatform()) {
             const token = getSessionToken();
+            console.log(`[API] isNativePlatform: true, token: ${token ? token.substring(0, 20) + '...' : 'null'}`);
             if (token) {
                 headers["Authorization"] = `Bearer ${token}`;
             }
+        } else {
+            console.log(`[API] isNativePlatform: false`);
         }
 
         const config = {

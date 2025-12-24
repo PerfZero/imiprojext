@@ -55,12 +55,58 @@ async function login() {
             onRequest: (ctx) => {
                 isLoading.value = true;
             },
-            onSuccess: (ctx) => {
+            onSuccess: async (ctx) => {
                 isLoading.value = false;
-                if (isNativePlatform() && ctx.data?.token) {
-                    saveSessionToken(ctx.data.token);
-                    console.log("[Auth] Token saved for mobile app");
+                console.log("[Auth] Login success, full ctx:", ctx);
+                console.log("[Auth] ctx.data:", JSON.stringify(ctx.data));
+                console.log("[Auth] ctx.response headers:", ctx.response?.headers);
+                
+                if (isNativePlatform()) {
+                    try {
+                        // Сначала пробуем получить токен из Set-Cookie заголовка
+                        let token = null;
+                        
+                        // Проверяем заголовки ответа
+                        const setCookie = ctx.response?.headers?.get?.('set-cookie');
+                        console.log("[Auth] Set-Cookie header:", setCookie);
+                        
+                        if (setCookie) {
+                            const match = setCookie.match(/better-auth\.session_token=([^;]+)/);
+                            if (match && match[1]) {
+                                token = decodeURIComponent(match[1]);
+                                console.log("[Auth] Token from Set-Cookie:", token);
+                            }
+                        }
+                        
+                        // Если не нашли в заголовках, пробуем из данных
+                        if (!token) {
+                            token = ctx.data?.token || ctx.data?.session?.token;
+                            console.log("[Auth] Token from ctx.data:", token);
+                        }
+                        
+                        // Пробуем из cookies браузера
+                        if (!token) {
+                            const cookies = document.cookie;
+                            console.log("[Auth] Document cookies:", cookies);
+                            const cookieMatch = cookies.match(/better-auth\.session_token=([^;]+)/);
+                            if (cookieMatch && cookieMatch[1]) {
+                                token = decodeURIComponent(cookieMatch[1]);
+                                console.log("[Auth] Token from document.cookie:", token);
+                            }
+                        }
+                        
+                        if (token) {
+                            saveSessionToken(token);
+                            console.log("[Auth] Token saved:", token);
+                        } else {
+                            console.error("[Auth] No token found anywhere!");
+                        }
+                    } catch (e) {
+                        console.error("[Auth] Error getting session:", e);
+                    }
                 }
+                
+                router.push('/dashboard');
             },
             onError: (ctx) => {
                 serverError.value = ctx.error.message;

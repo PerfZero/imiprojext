@@ -16,22 +16,14 @@ function getApiBaseUrl() {
 const baseAuthClient = createAuthClient({
     baseURL: getApiBaseUrl(),
     basePath: "/api/auth",
-    fetchOptions: {
-        onSuccess: (ctx: any) => {
-            if (isNativePlatform() && ctx.data?.token) {
-                saveSessionToken(ctx.data.token);
-            }
-        },
-    },
 });
 
-export const authClient = {
-    ...baseAuthClient,
-    signOut: async () => {
-        clearSessionToken();
-        return baseAuthClient.signOut();
-    },
-    getSessionToken,
-    saveSessionToken,
-    clearSessionToken,
+export const authClient = baseAuthClient as typeof baseAuthClient & {
+    getSessionToken: typeof getSessionToken;
+    saveSessionToken: typeof saveSessionToken;
+    clearSessionToken: typeof clearSessionToken;
 };
+
+authClient.getSessionToken = getSessionToken;
+authClient.saveSessionToken = saveSessionToken;
+authClient.clearSessionToken = clearSessionToken;

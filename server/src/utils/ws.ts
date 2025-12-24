@@ -36,16 +36,31 @@ export function createWebSocketServer(server: Server) {
             let session = await auth.api.getSession({
                 headers: fromNodeHeaders(req.headers),
             });
+            console.log("[WS] Session from headers:", !!session);
 
             if (!session) {
                 const url = new URL(req.url || "", `http://${req.headers.host}`);
                 const queryToken = url.searchParams.get("token");
+                console.log("[WS] Token from query:", queryToken);
+                
                 if (queryToken) {
+                    // Пробуем разные форматы
                     session = await auth.api.getSession({
                         headers: {
                             cookie: `better-auth.session_token=${queryToken}`,
                         },
                     });
+                    console.log("[WS] Session with cookie format:", !!session);
+                    
+                    if (!session) {
+                        // Пробуем с URL-encoded именем
+                        session = await auth.api.getSession({
+                            headers: {
+                                cookie: `better-auth%2Esession_token=${queryToken}`,
+                            },
+                        });
+                        console.log("[WS] Session with encoded cookie:", !!session);
+                    }
                 }
             }
 

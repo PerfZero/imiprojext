@@ -91,21 +91,39 @@ export function createApp() {
             const authHeader = req.headers.authorization;
             if (authHeader && authHeader.startsWith('Bearer ')) {
                 const token = authHeader.substring(7);
+                console.log("[Auth Middleware] Token from Authorization header:", token);
                 try {
+                    // Пробуем разные форматы cookie
                     session = await auth.api.getSession({
                         headers: {
                             cookie: `better-auth.session_token=${token}`,
                         },
                     });
+                    console.log("[Auth Middleware] Session found with cookie format:", !!session);
+                    
+                    if (!session) {
+                        // Пробуем с URL-encoded именем
+                        session = await auth.api.getSession({
+                            headers: {
+                                cookie: `better-auth%2Esession_token=${token}`,
+                            },
+                        });
+                        console.log("[Auth Middleware] Session found with encoded cookie:", !!session);
+                    }
                 } catch (e) {
-                    console.error("Error getting session from token:", e);
+                    console.error("[Auth Middleware] Error getting session from token:", e);
                 }
             }
+        } else {
+            console.log("[Auth Middleware] Session found from headers");
         }
 
         if (session && "user" in session && session.user) {
             req.session = session;
             req.userId = session.user.id;
+            console.log("[Auth Middleware] User authenticated:", session.user.id);
+        } else {
+            console.log("[Auth Middleware] No session found for request:", req.path);
         }
         next();
     });
