@@ -3,8 +3,9 @@ import { computed, ref, onMounted } from 'vue';
 import IncomeByLevels from '@/components/IncomeByLevels.vue'
 import MyReferrer from '@/components/MyReferrer.vue'
 import ReferralTree from '@/components/ReferralTree.vue'
-import { authClient } from "@/lib/auth-client";
 import apiService from '@/services/apiService';
+import { SITE_BASE_URL } from '@/utils/apiConfig';
+import { useUser } from '@/composables/useUser';
 
 interface ReferralData {
     directReferrals: any[];
@@ -13,16 +14,14 @@ interface ReferralData {
     referralTree: any[];
 }
 
-const session = authClient.useSession();
+const { user } = useUser();
 const loading = ref(true);
 const referralData = ref<ReferralData | null>(null);
 const incomeByLevel = ref<any[]>([]);
 
 const referralLink = computed(() => {
-    const user = session.value?.data?.user as any;
-    if (user?.referralCode) {
-        const baseUrl = window.location.origin;
-        return `${baseUrl}/ref/${user.referralCode}`;
+    if (user.value?.referralCode) {
+        return `${SITE_BASE_URL}/ref/${user.value.referralCode}`;
     }
     return '';
 });

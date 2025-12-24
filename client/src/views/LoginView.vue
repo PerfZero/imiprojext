@@ -4,6 +4,7 @@ import { authClient } from "@/lib/auth-client";
 import { z } from "zod";
 import { useRouter } from "vue-router";
 import { saveSessionToken, isNativePlatform } from "@/utils/sessionStorage";
+import { globalSetUser } from "@/composables/useUser";
 
 const router = useRouter();
 const { signIn, signUp, useSession } = authClient;
@@ -98,6 +99,12 @@ async function login() {
                         if (token) {
                             saveSessionToken(token);
                             console.log("[Auth] Token saved:", token);
+                            
+                            // Сохраняем данные пользователя
+                            if (ctx.data?.user) {
+                                globalSetUser(ctx.data.user);
+                                console.log("[Auth] User saved:", ctx.data.user.email);
+                            }
                         } else {
                             console.error("[Auth] No token found anywhere!");
                         }

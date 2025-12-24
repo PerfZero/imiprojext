@@ -1,8 +1,12 @@
 <script setup>
-import { watch } from "vue";
+import { watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
-import { authClient } from "@/lib/auth-client";
-const session = authClient.useSession();
+import { useUser } from "@/composables/useUser";
+const { user, loadUser } = useUser();
+
+onMounted(() => {
+    loadUser();
+});
 
 import { useNotifications } from '@/composables/useNotifications';
 const { onNotify } = useNotifications();
@@ -83,8 +87,8 @@ watch(
                         </div>
                     </div>
                     <div class="flex-grow-1 text-start">
-                        <h6 class="mb-1 text-white" id="usernamedisplay">{{ session.data?.user.name }}</h6>
-                        <p class="text-white-50 small mb-0">{{ session.data?.user.email }}</p>
+                        <h6 class="mb-1 text-white" id="usernamedisplay">{{ user?.name || user?.email || 'Пользователь' }}</h6>
+                        <p class="text-white-50 small mb-0">{{ user?.email || '' }}</p>
                     </div>
                 </div>
             </RouterLink>

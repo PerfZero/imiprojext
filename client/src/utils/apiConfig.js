@@ -12,6 +12,23 @@ function getApiBaseUrl() {
 
 export const API_BASE_URL = getApiBaseUrl();
 
+// Базовый URL сайта для реферальных ссылок
+function getSiteBaseUrl() {
+    if (import.meta.env.VITE_SITE_URL) {
+        return import.meta.env.VITE_SITE_URL;
+    }
+    
+    // Для мобильного приложения используем реальный URL сайта
+    if (window.Capacitor?.isNativePlatform()) {
+        return 'http://79.174.77.143:3000';
+    }
+    
+    // Для веб-версии используем текущий origin
+    return window.location.origin;
+}
+
+export const SITE_BASE_URL = getSiteBaseUrl();
+
 // Преобразует относительный путь картинки в полный URL для мобильного приложения
 export function getImageUrl(imagePath) {
     if (!imagePath) return '';

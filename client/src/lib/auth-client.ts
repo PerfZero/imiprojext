@@ -18,12 +18,17 @@ const baseAuthClient = createAuthClient({
     basePath: "/api/auth",
 });
 
-export const authClient = baseAuthClient as typeof baseAuthClient & {
-    getSessionToken: typeof getSessionToken;
-    saveSessionToken: typeof saveSessionToken;
-    clearSessionToken: typeof clearSessionToken;
-};
+// Создаем функцию выхода с очисткой токена
+export async function signOutWithClear(options?: any) {
+    console.log('[Auth] Signing out, clearing token...');
+    await clearSessionToken();
+    return baseAuthClient.signOut(options);
+}
 
-authClient.getSessionToken = getSessionToken;
-authClient.saveSessionToken = saveSessionToken;
-authClient.clearSessionToken = clearSessionToken;
+// Экспортируем клиент с дополнительными методами
+export const authClient = Object.assign(baseAuthClient, {
+    getSessionToken,
+    saveSessionToken,
+    clearSessionToken,
+    signOutWithClear,
+});

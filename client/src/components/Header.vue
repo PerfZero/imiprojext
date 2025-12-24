@@ -1,8 +1,20 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { authClient } from "@/lib/auth-client";
-const session = authClient.useSession();
-const { signOut } = authClient;
+import { signOutWithClear } from "@/lib/auth-client";
+import { useUser, globalClearUser } from "@/composables/useUser";
+
+const { user, loadUser } = useUser();
+
+// Загружаем пользователя при монтировании
+onMounted(() => {
+    loadUser();
+});
+
+// Обёртка для выхода с очисткой состояния
+async function handleSignOut() {
+    globalClearUser();
+    await signOutWithClear();
+}
 
 import NavbarApplicationsList from "@/components/NavbarApplicationsList.vue";
 import Notifications from "@/components/Notifications.vue";
@@ -76,9 +88,8 @@ onMounted(() => {
                                 </div>
                                 <div class="col align-self-center d-none d-xl-block px-2">
                                     <!-- <span class="mb-0">Иван Иванов</span> -->
-                                    <span v-if="session.data?.user.name == '-'" class="mb-0">{{ session.data?.user.email
-                                        }}</span>
-                                    <span v-else class="mb-0">{{ session.data?.user.name }}</span>
+                                    <span v-if="user?.name == '-' || !user?.name" class="mb-0">{{ user?.email || 'Пользователь' }}</span>
+                                    <span v-else class="mb-0">{{ user?.name }}</span>
                                 </div>
                             </div>
                         </a>
@@ -94,21 +105,21 @@ onMounted(() => {
                                     <div class="col align-self-center">
                                         <p class="mb-1">
 
-                                            <span v-if="session.data?.user.name == '-'">{{
-                                                session.data?.user.email
+                                            <span v-if="user?.name == '-' || !user?.name">{{
+                                                user?.email || 'Пользователь'
                                                 }}</span>
-                                            <span v-else>{{ session.data?.user.name }}</span>
+                                            <span v-else>{{ user?.name }}</span>
                                         </p>
                                         <p>
                                             <i class="bi bi-envelope me-2"></i>
-                                            {{ session.data?.user.email }}
+                                            {{ user?.email || '' }}
                                             <small class="opacity-50"></small>
                                         </p>
                                     </div>
                                 </div>
                             </div>
                             <div class="px-2">
-                                <div v-if="session.data?.user?.role === 'admin'">
+                                <div v-if="user?.role === 'admin'">
                                     <RouterLink to="/admin" class="dropdown-item">
                                         <i class="bi bi-shield-check avatar avatar-18 me-1"></i>
                                         Админ панель
@@ -159,7 +170,7 @@ onMounted(() => {
                                     </RouterLink>
                                 </div>
                                 <div>
-                                    <a class="dropdown-item theme-red" href="/" @click="signOut">
+                                    <a class="dropdown-item theme-red" href="/" @click="handleSignOut">
                                         <i class="bi bi-box-arrow-right avatar avatar-18 me-1"></i>
                                         Выйти
                                     </a>
