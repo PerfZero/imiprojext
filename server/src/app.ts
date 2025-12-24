@@ -9,6 +9,9 @@ import swaggerUi from "swagger-ui-express";
 
 import { fromNodeHeaders } from "better-auth/node";
 import { auth, authHandler } from "./utils/auth";
+import { db } from "./db";
+import { session as sessionTable, user as userTable } from "./db/auth-schema";
+import { eq, and, gt } from "drizzle-orm";
 
 import { swaggerSpec } from "./docs/swagger";
 import { notificationRouter } from "./routes/notifications";
@@ -92,26 +95,42 @@ export function createApp() {
             if (authHeader && authHeader.startsWith('Bearer ')) {
                 const token = authHeader.substring(7);
                 console.log("[Auth Middleware] Token from Authorization header:", token);
+                
+                // Напрямую ищем сессию в базе данных
                 try {
-                    // Пробуем разные форматы cookie
-                    session = await auth.api.getSession({
-                        headers: {
-                            cookie: `better-auth.session_token=${token}`,
-                        },
-                    });
-                    console.log("[Auth Middleware] Session found with cookie format:", !!session);
+                    const now = Date.now();
+                    const sessionRows = await db
+                        .select()
+                        .from(sessionTable)
+                        .where(
+                            and(
+                                eq(sessionTable.token, token),
+                                gt(sessionTable.expiresAt, new Date(now))
+                            )
+                        )
+                        .limit(1);
                     
-                    if (!session) {
-                        // Пробуем с URL-encoded именем
-                        session = await auth.api.getSession({
-                            headers: {
-                                cookie: `better-auth%2Esession_token=${token}`,
-                            },
-                        });
-                        console.log("[Auth Middleware] Session found with encoded cookie:", !!session);
+                    const sessionRow = sessionRows[0];
+                    if (sessionRow) {
+                        const userRows = await db
+                            .select()
+                            .from(userTable)
+                            .where(eq(userTable.id, sessionRow.userId))
+                            .limit(1);
+                        
+                        const userRow = userRows[0];
+                        if (userRow) {
+                            session = {
+                                user: userRow,
+                                session: sessionRow
+                            } as any;
+                            console.log("[Auth Middleware] Session found from DB:", sessionRow.userId);
+                        }
+                    } else {
+                        console.log("[Auth Middleware] Session not found in DB for token");
                     }
                 } catch (e) {
-                    console.error("[Auth Middleware] Error getting session from token:", e);
+                    console.error("[Auth Middleware] Error getting session from DB:", e);
                 }
             }
         } else {

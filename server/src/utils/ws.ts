@@ -3,6 +3,9 @@ import WebSocket from "ws";
 import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "./auth";
 import { IncomingMessage } from "http";
+import { db } from "../db";
+import { session as sessionTable, user as userTable } from "../db/auth-schema";
+import { eq, and, gt } from "drizzle-orm";
 
 const clients = new Map<string, WebSocket>();
 let wss: WebSocket.Server | null = null;
@@ -44,22 +47,41 @@ export function createWebSocketServer(server: Server) {
                 console.log("[WS] Token from query:", queryToken);
                 
                 if (queryToken) {
-                    // Пробуем разные форматы
-                    session = await auth.api.getSession({
-                        headers: {
-                            cookie: `better-auth.session_token=${queryToken}`,
-                        },
-                    });
-                    console.log("[WS] Session with cookie format:", !!session);
-                    
-                    if (!session) {
-                        // Пробуем с URL-encoded именем
-                        session = await auth.api.getSession({
-                            headers: {
-                                cookie: `better-auth%2Esession_token=${queryToken}`,
-                            },
-                        });
-                        console.log("[WS] Session with encoded cookie:", !!session);
+                    // Напрямую ищем сессию в базе данных
+                    try {
+                        const now = Date.now();
+                        const sessionRows = await db
+                            .select()
+                            .from(sessionTable)
+                            .where(
+                                and(
+                                    eq(sessionTable.token, queryToken),
+                                    gt(sessionTable.expiresAt, new Date(now))
+                                )
+                            )
+                            .limit(1);
+                        
+                        const sessionRow = sessionRows[0];
+                        if (sessionRow) {
+                            const userRows = await db
+                                .select()
+                                .from(userTable)
+                                .where(eq(userTable.id, sessionRow.userId))
+                                .limit(1);
+                            
+                            const userRow = userRows[0];
+                            if (userRow) {
+                                session = {
+                                    user: userRow,
+                                    session: sessionRow
+                                } as any;
+                                console.log("[WS] Session found from DB:", sessionRow.userId);
+                            }
+                        } else {
+                            console.log("[WS] Session not found in DB for token");
+                        }
+                    } catch (e) {
+                        console.error("[WS] Error getting session from DB:", e);
                     }
                 }
             }
