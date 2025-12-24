@@ -1,11 +1,17 @@
 // apiService.js
+import { API_BASE_URL } from '@/utils/apiConfig.js';
 
 class ApiService {
     async request(endpoint, options = {}) {
-        const url = `${endpoint}`;
+        const baseUrl = API_BASE_URL || '';
+        const url = endpoint.startsWith('http') ? endpoint : `${baseUrl}${endpoint}`;
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000);
 
         const config = {
             credentials: 'include',
+            signal: controller.signal,
             headers: {
                 "Content-Type": "application/json",
                 ...options.headers,
@@ -14,6 +20,7 @@ class ApiService {
         };
         try {
             const response = await fetch(url, config);
+            clearTimeout(timeoutId);
 
             if (!response.ok) {
                 // Пытаемся получить текст ошибки из ответа сервера
@@ -39,7 +46,12 @@ class ApiService {
             const data = await response.json();
             return data;
         } catch (error) {
-            console.error("API request failed:", error);
+            clearTimeout(timeoutId);
+            if (error.name === 'AbortError') {
+                console.error("API request timeout:", url);
+                throw new Error("Превышено время ожидания ответа от сервера");
+            }
+            console.error("API request failed:", error, "URL:", url);
             throw error;
         }
     }
@@ -116,13 +128,16 @@ class ApiService {
         const formData = new FormData();
         formData.append("avatar", file);
 
+        const baseUrl = API_BASE_URL || '';
+        const url = `${baseUrl}/api/users/avatar`;
+
         const config = {
             method: "POST",
             credentials: 'include',
             body: formData,
         };
         try {
-            const response = await fetch("/api/users/avatar", config);
+            const response = await fetch(url, config);
 
             if (!response.ok) {
                 // Пытаемся получить текст ошибки из ответа сервера
@@ -321,7 +336,10 @@ class ApiService {
         const formData = new FormData();
         formData.append("image", file);
 
-        const response = await fetch("/api/upload/image", {
+        const baseUrl = API_BASE_URL || '';
+        const url = `${baseUrl}/api/upload/image`;
+
+        const response = await fetch(url, {
             method: "POST",
             credentials: 'include',
             body: formData,
@@ -340,7 +358,10 @@ class ApiService {
         formData.append("passportPage2", files.passportPage2);
         formData.append("selfieWithPassport", files.selfieWithPassport);
 
-        const response = await fetch("/api/verification/upload", {
+        const baseUrl = API_BASE_URL || '';
+        const url = `${baseUrl}/api/verification/upload`;
+
+        const response = await fetch(url, {
             method: "POST",
             credentials: 'include',
             body: formData,

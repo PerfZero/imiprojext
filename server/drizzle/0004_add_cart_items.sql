@@ -12,3 +12,4 @@ CREATE TABLE IF NOT EXISTS `cart_items` (
 CREATE UNIQUE INDEX IF NOT EXISTS `cart_user_product_idx` ON `cart_items` (`user_id`,`product_id`);
 
 
+

@@ -41,12 +41,21 @@ export function createApp() {
         "https://demka.space",
         "http://localhost:5173",
         "http://192.168.31.13:5173",
+        "http://79.174.77.143",
+        "http://79.174.77.143:3000",
     ];
 
     app.use((req, res, next) => {
         const origin = req.headers.origin;
-        if (origin && allowedOrigins.includes(origin)) {
-            res.setHeader("Access-Control-Allow-Origin", origin);
+        const userAgent = req.headers["user-agent"] || "";
+        const isMobileApp = userAgent.includes("CapacitorHttp") || !origin;
+        
+        if (isMobileApp || (origin && allowedOrigins.includes(origin))) {
+            if (origin) {
+                res.setHeader("Access-Control-Allow-Origin", origin);
+            } else {
+                res.setHeader("Access-Control-Allow-Origin", "*");
+            }
         }
         res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");

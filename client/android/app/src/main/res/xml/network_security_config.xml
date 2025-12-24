@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">192.168.31.13</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">imiclub.pro</domain>
+        <domain includeSubdomains="true">demka.space</domain>
+        <domain includeSubdomains="true">79.174.77.143</domain>
+    </domain-config>
+</network-security-config>
+
