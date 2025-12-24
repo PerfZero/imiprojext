@@ -373,6 +373,135 @@ class ApiService {
             method: "GET",
         });
     }
+
+    async getCart() {
+        return this.request("/api/cart", {
+            method: "GET",
+        });
+    }
+
+    async addToCart(productId, quantity = 1) {
+        return this.request("/api/cart/add", {
+            method: "POST",
+            body: JSON.stringify({ productId, quantity }),
+        });
+    }
+
+    async updateCartItem(id, quantity) {
+        return this.request(`/api/cart/${id}`, {
+            method: "PUT",
+            body: JSON.stringify({ quantity }),
+        });
+    }
+
+    async removeFromCart(id) {
+        return this.request(`/api/cart/${id}`, {
+            method: "DELETE",
+        });
+    }
+
+    async clearCart() {
+        return this.request("/api/cart", {
+            method: "DELETE",
+        });
+    }
+
+    async getOrders() {
+        return this.request("/api/orders", {
+            method: "GET",
+        });
+    }
+
+    async getAllOrders() {
+        return this.request("/api/orders/all", {
+            method: "GET",
+        });
+    }
+
+    async getOrder(id) {
+        return this.request(`/api/orders/${id}`, {
+            method: "GET",
+        });
+    }
+
+    async createOrder(data) {
+        return this.request("/api/orders", {
+            method: "POST",
+            body: JSON.stringify(data),
+        });
+    }
+
+    async updateOrderStatus(id, status) {
+        return this.request(`/api/orders/${id}/status`, {
+            method: "PUT",
+            body: JSON.stringify({ status }),
+        });
+    }
+
+    async deleteOrder(id) {
+        return this.request(`/api/orders/${id}`, {
+            method: "DELETE",
+        });
+    }
+
+    async validateCoupon(code, totalAmount) {
+        return this.request("/api/coupons/validate", {
+            method: "POST",
+            body: JSON.stringify({ code, totalAmount }),
+        });
+    }
+
+    async getCoupons() {
+        return this.request("/api/coupons", {
+            method: "GET",
+        });
+    }
+
+    async createCoupon(data) {
+        return this.request("/api/coupons", {
+            method: "POST",
+            body: JSON.stringify(data),
+        });
+    }
+
+    async updateCoupon(id, data) {
+        return this.request(`/api/coupons/${id}`, {
+            method: "PUT",
+            body: JSON.stringify(data),
+        });
+    }
+
+    async deleteCoupon(id) {
+        return this.request(`/api/coupons/${id}`, {
+            method: "DELETE",
+        });
+    }
+
+    async getAddresses() {
+        return this.request("/api/users/addresses", {
+            method: "GET",
+        });
+    }
+
+    async createAddress(data) {
+        return this.request("/api/users/addresses", {
+            method: "POST",
+            body: JSON.stringify(data),
+        });
+    }
+
+    async updateAddress(id, data) {
+        return this.request(`/api/users/addresses/${id}`, {
+            method: "PUT",
+            body: JSON.stringify(data),
+        });
+    }
+
+    async deleteAddress(id) {
+        return this.request(`/api/users/addresses/${id}`, {
+            method: "DELETE",
+        });
+    }
 }
 
 export default new ApiService();

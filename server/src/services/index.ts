@@ -6,6 +6,8 @@ import { UserService } from "./UserService";
 import { WalletService } from "./WalletService";
 import { ProductService } from "./ProductService";
 import { VerificationService } from "./VerificationService";
+import { OrderService } from "./OrderService";
+import { CouponService } from "./CouponService";
 
 export const userService = new UserService(db);
 export const transactionService = new TransactionService(db);
@@ -19,6 +21,8 @@ export const walletService = new WalletService(
 );
 export const productService = new ProductService(db);
 export const verificationService = new VerificationService(db);
+export const orderService = new OrderService(db);
+export const couponService = new CouponService(db);
 
 export const services = {
     userService,
@@ -28,4 +32,6 @@ export const services = {
     mlmService,
     productService,
     verificationService,
+    orderService,
+    couponService,
 };

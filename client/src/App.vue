@@ -6,6 +6,8 @@ import "/assets/js/template/template-dashboard.js?url";
 
 const isLoading = ref(true);
 const router = useRouter();
+const deferredPrompt = ref<any>(null);
+const showInstallPrompt = ref(false);
 
 onMounted(() => {
     router.isReady().then(() => {
@@ -15,7 +17,46 @@ onMounted(() => {
     }).catch(() => {
         isLoading.value = false;
     });
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt.value = e;
+        showInstallPrompt.value = true;
+        const toastElement = document.getElementById('liveToastInstallApp');
+        if (toastElement) {
+            const toast = (window as any).bootstrap?.Toast?.getOrCreateInstance(toastElement);
+            if (toast) {
+                toast.show();
+            }
+        }
+    });
+
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+        showInstallPrompt.value = false;
+    }
 });
+
+const btnInstallAppClick = async () => {
+    if (!deferredPrompt.value) {
+        return;
+    }
+
+    deferredPrompt.value.prompt();
+    const { outcome } = await deferredPrompt.value.userChoice;
+    
+    if (outcome === 'accepted') {
+        showInstallPrompt.value = false;
+    }
+    
+    deferredPrompt.value = null;
+    const toastElement = document.getElementById('liveToastInstallApp');
+    if (toastElement) {
+        const toast = (window as any).bootstrap?.Toast?.getInstance(toastElement);
+        if (toast) {
+            toast.hide();
+        }
+    }
+};
 </script>
 
 <template>
@@ -36,17 +77,16 @@ onMounted(() => {
 
     <!-- Контейнер для тостов -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="liveToastInstallApp" class="toast bg-theme-1" data-bs-delay="20000" role="alert" aria-live="assertive"
+        <div v-if="showInstallPrompt" id="liveToastInstallApp" class="toast bg-theme-1" data-bs-delay="20000" role="alert" aria-live="assertive"
             aria-atomic="true">
             <div class="toast-header bg-theme-1">
                 <img src="/assets/img/favicon.png" class="rounded me-2" alt="..." />
                 <strong class="me-auto">Установить приложение?</strong>
-                <!-- <small>10 sec ago</small> -->
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Закрыть"></button>
             </div>
             <div class="toast-body">
                 <button type="button" class="btn btn-outline-info" @click="btnInstallAppClick">
-                    <i class="bi bi-gender-male"></i>
+                    <i class="bi bi-download"></i>
                     Установить на домашний экран
                 </button>
             </div>

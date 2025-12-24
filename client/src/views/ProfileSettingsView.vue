@@ -25,6 +25,18 @@ const passportPage1Preview = ref('');
 const passportPage2Preview = ref('');
 const selfieWithPassportPreview = ref('');
 
+const addresses = ref([]);
+const addressesLoading = ref(false);
+const showAddressModal = ref(false);
+const editingAddress = ref(null);
+const addressForm = ref({
+    name: '',
+    phone: '',
+    city: '',
+    address: '',
+    isDefault: false,
+});
+
 watch(() => session.value?.data?.user, (newUser) => {
     if (newUser) {
         name.value = newUser.name || '';
@@ -97,8 +109,80 @@ const uploadVerificationDocuments = async () => {
     }
 };
 
+const loadAddresses = async () => {
+    try {
+        addressesLoading.value = true;
+        addresses.value = await apiService.getAddresses();
+    } catch (error) {
+        console.error('Ошибка загрузки адресов:', error);
+    } finally {
+        addressesLoading.value = false;
+    }
+};
+
+const openAddressModal = (address = null) => {
+    editingAddress.value = address;
+    if (address) {
+        addressForm.value = {
+            name: address.name,
+            phone: address.phone,
+            city: address.city,
+            address: address.address,
+            isDefault: address.isDefault,
+        };
+    } else {
+        addressForm.value = {
+            name: session.value?.data?.user?.name || '',
+            phone: session.value?.data?.user?.phone || '',
+            city: '',
+            address: '',
+            isDefault: false,
+        };
+    }
+    showAddressModal.value = true;
+};
+
+const closeAddressModal = () => {
+    showAddressModal.value = false;
+    editingAddress.value = null;
+    addressForm.value = {
+        name: '',
+        phone: '',
+        city: '',
+        address: '',
+        isDefault: false,
+    };
+};
+
+const saveAddress = async () => {
+    try {
+        if (editingAddress.value) {
+            await apiService.updateAddress(editingAddress.value.id, addressForm.value);
+        } else {
+            await apiService.createAddress(addressForm.value);
+        }
+        showToast('Успех', 'Адрес успешно сохранён', 3000);
+        await loadAddresses();
+        closeAddressModal();
+    } catch (error) {
+        alert(error.error || 'Ошибка при сохранении адреса');
+    }
+};
+
+const deleteAddress = async (id) => {
+    if (!confirm('Удалить адрес?')) return;
+    try {
+        await apiService.deleteAddress(id);
+        showToast('Успех', 'Адрес удалён', 3000);
+        await loadAddresses();
+    } catch (error) {
+        alert('Ошибка при удалении адреса');
+    }
+};
+
 onMounted(() => {
     loadVerificationStatus();
+    loadAddresses();
 });
 
 const uploadPhoto = () => {
@@ -207,16 +291,7 @@ const updateProfile = async () => {
         <!-- content -->
         <div class="container mt-3" id="main-content">
             <div class="card adminuiux-card bg-theme-1 overflow-hidden mb-3 pt-5">
-                <figure
-                    class="coverimg start-0 top-0 w-100 h-100 z-index-0 position-absolute overlay-gradiant opacity-50">
-                    <!-- <div class="position-absolute top-0 end-0 m-2">
-                        <button class="btn btn-sm btn-light" onclick="$(this).next().click()">
-                            <i class="bi bi-camera"></i> Change Cover
-                        </button>
-                        <input type="file" class="d-none">
-                    </div> -->
-                    <img src="/assets/img/template/splash01.svg" class="mw-100" alt="">
-                </figure>
+               
                 <div class="card-body text-center text-white z-index-1">
                     <div class="d-inline-block position-relative w-auto mx-auto my-3">
                         <div class="avatar avatar-150 rounded-circle bg-theme-1 d-flex align-items-center justify-content-center">
@@ -350,6 +425,130 @@ const updateProfile = async () => {
                         <div v-else-if="verificationStatus?.status === 'approved'" class="alert alert-success">
                             Ваша верификация успешно пройдена.
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bg-none mb-3 mb-lg-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Адреса доставки</h5>
+                        <button class="btn btn-primary btn-sm" @click="openAddressModal()">
+                            Добавить адрес
+                        </button>
+                    </div>
+
+                    <div v-if="addressesLoading" class="text-center py-3">
+                        <div class="spinner-border spinner-border-sm"></div>
+                    </div>
+
+                    <div v-else-if="addresses.length === 0" class="text-center py-3 text-muted">
+                        <p class="mb-0">Адресов пока нет</p>
+                    </div>
+
+                    <div v-else class="row g-3">
+                        <div 
+                            v-for="address in addresses" 
+                            :key="address.id"
+                            class="col-12 col-md-6"
+                        >
+                            <div class="card border" :class="{ 'border-primary': address.isDefault }">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h6 class="mb-1">
+                                                {{ address.name }}
+                                                <span v-if="address.isDefault" class="badge bg-primary ms-2">По умолчанию</span>
+                                            </h6>
+                                            <p class="mb-1 small text-muted">{{ address.phone }}</p>
+                                            <p class="mb-0 small">{{ address.city }}, {{ address.address }}</p>
+                                        </div>
+                                        <div class="btn-group btn-group-sm">
+                                            <button 
+                                                class="btn btn-outline-secondary"
+                                                @click="openAddressModal(address)"
+                                            >
+                                                <i class="bi bi-pencil"></i>
+                                            </button>
+                                            <button 
+                                                class="btn btn-outline-danger"
+                                                @click="deleteAddress(address.id)"
+                                            >
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="showAddressModal" class="modal fade show d-block" style="background: rgba(0,0,0,0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            {{ editingAddress ? 'Редактировать адрес' : 'Добавить адрес' }}
+                        </h5>
+                        <button type="button" class="btn-close" @click="closeAddressModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">ФИО получателя *</label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                v-model="addressForm.name"
+                                placeholder="Иванов Иван Иванович"
+                            >
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Телефон *</label>
+                            <input 
+                                type="tel" 
+                                class="form-control" 
+                                v-model="addressForm.phone"
+                                placeholder="+7 (999) 123-45-67"
+                            >
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Город *</label>
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                v-model="addressForm.city"
+                                placeholder="Москва"
+                            >
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Адрес *</label>
+                            <textarea 
+                                class="form-control" 
+                                v-model="addressForm.address"
+                                rows="2"
+                                placeholder="ул. Примерная, д. 1, кв. 1"
+                            ></textarea>
+                        </div>
+                        <div class="mb-0">
+                            <div class="form-check">
+                                <input 
+                                    class="form-check-input" 
+                                    type="checkbox" 
+                                    v-model="addressForm.isDefault"
+                                    id="addressDefault"
+                                >
+                                <label class="form-check-label" for="addressDefault">
+                                    Использовать по умолчанию
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @click="closeAddressModal">Отмена</button>
+                        <button type="button" class="btn btn-primary" @click="saveAddress">Сохранить</button>
                     </div>
                 </div>
             </div>

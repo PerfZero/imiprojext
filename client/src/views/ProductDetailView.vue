@@ -82,27 +82,19 @@ const decrementQuantity = () => {
     }
 };
 
-const buy = async () => {
+const addToCart = async () => {
     showError.value = false;
     errorMessage.value = '';
 
     try {
-        const price = discountPrice.value * quantity.value;
-        const name = selectedVariant.value
-            ? `${product.value.name} (${selectedVariant.value.attributes?.map(a => a.value).join(', ') || selectedVariant.value.sku})`
-            : product.value.name;
-
-        await apiService.walletPurchase({
-            currency: product.value.currency || 'RUB',
-            amount: price,
-            description: `${name} x${quantity.value}`
-        });
-        alert('Покупка успешна!');
+        const productIdToAdd = selectedVariant.value?.id || product.value.id;
+        await apiService.addToCart(productIdToAdd, quantity.value);
+        alert('Товар добавлен в корзину!');
     } catch (error) {
         if (error && error.error) {
             errorMessage.value = error.error;
         } else {
-            errorMessage.value = 'Не удалось выполнить покупку. Попробуйте ещё раз.';
+            errorMessage.value = 'Не удалось добавить в корзину. Попробуйте ещё раз.';
         }
         showError.value = true;
     }
@@ -136,8 +128,8 @@ onMounted(() => {
                         <p class="text-secondary small mb-0" v-if="product.categoryName">{{ product.categoryName }}</p>
                     </div>
                     <div class="col-auto position-relative">
-                        <button class="btn btn-theme btn-square text-color-theme" @click="buy">
-                            <i class="bi bi-bag-plus"></i>
+                        <button class="btn btn-theme btn-square text-color-theme" @click="addToCart" :disabled="product.stock === 0">
+                            <i class="bi bi-cart-plus"></i>
                         </button>
                     </div>
                 </div>
@@ -313,11 +305,11 @@ onMounted(() => {
                     <li class="nav-item flex-grow-1">
                         <button
                             class="btn btn-theme w-100"
-                            @click="buy"
+                            @click="addToCart"
                             :disabled="product.stock === 0"
                         >
-                            <i class="bi bi-bag-plus me-2"></i>
-                            Купить за ₽ {{ formatPrice(discountPrice * quantity) }}
+                            <i class="bi bi-cart-plus me-2"></i>
+                            В корзину за ₽ {{ formatPrice(discountPrice * quantity) }}
                         </button>
                     </li>
                 </ul>

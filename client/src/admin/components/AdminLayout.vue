@@ -21,6 +21,8 @@ const shopMenuItems = [
     { path: "/admin/products", icon: "bi-box-seam", label: "Товары" },
     { path: "/admin/categories", icon: "bi-folder", label: "Категории" },
     { path: "/admin/attributes", icon: "bi-tags", label: "Атрибуты" },
+    { path: "/admin/orders", icon: "bi-cart-check", label: "Заказы" },
+    { path: "/admin/coupons", icon: "bi-ticket-perforated", label: "Купоны" },
 ];
 
 const isActive = (path) => {

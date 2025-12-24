@@ -161,8 +161,20 @@ watch(
                     <ul class="dropdown-menu">
                         <li class="nav-item">
                             <RouterLink to="/shop" class="nav-link">
+                                <i class="menu-icon bi bi-bag h4"></i>
+                                <span class="menu-name">Каталог</span>
+                            </RouterLink>
+                        </li>
+                        <li class="nav-item">
+                            <RouterLink to="/cart" class="nav-link">
                                 <i class="menu-icon bi bi-cart h4"></i>
-                                <span class="menu-name">Потратить деньги</span>
+                                <span class="menu-name">Корзина</span>
+                            </RouterLink>
+                        </li>
+                        <li class="nav-item">
+                            <RouterLink to="/orders" class="nav-link">
+                                <i class="menu-icon bi bi-box-seam h4"></i>
+                                <span class="menu-name">Мои заказы</span>
                             </RouterLink>
                         </li>
                     </ul>

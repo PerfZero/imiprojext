@@ -22,6 +22,9 @@ import WithdrawView from "@/views/WithdrawView.vue";
 
 import ShopView from "@/views/ShopView.vue";
 import ProductDetailView from "@/views/ProductDetailView.vue";
+import CartView from "@/views/CartView.vue";
+import CheckoutView from "@/views/CheckoutView.vue";
+import OrdersView from "@/views/OrdersView.vue";
 
 import CashbackView from "@/views/CashbackView.vue";
 import LearnView from "@/views/LearnView.vue";
@@ -44,6 +47,8 @@ import AdminWallets from "@/admin/views/AdminWallets.vue";
 import AdminNotifications from "@/admin/views/AdminNotifications.vue";
 import AdminVerifications from "@/admin/views/AdminVerifications.vue";
 import AdminReferrals from "@/admin/views/AdminReferrals.vue";
+import AdminOrders from "@/admin/views/AdminOrders.vue";
+import AdminCoupons from "@/admin/views/AdminCoupons.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -160,6 +165,21 @@ const router = createRouter({
       path: "/shop/:id",
       name: "product-detail",
       component: ProductDetailView,
+    },
+    {
+      path: "/cart",
+      name: "cart",
+      component: CartView,
+    },
+    {
+      path: "/checkout",
+      name: "checkout",
+      component: CheckoutView,
+    },
+    {
+      path: "/orders",
+      name: "orders",
+      component: OrdersView,
     },
 
     // Projects
@@ -279,6 +299,18 @@ const router = createRouter({
       path: "/admin/verifications",
       name: "admin-verifications",
       component: AdminVerifications,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/orders",
+      name: "admin-orders",
+      component: AdminOrders,
+      meta: { requiresAdmin: true },
+    },
+    {
+      path: "/admin/coupons",
+      name: "admin-coupons",
+      component: AdminCoupons,
       meta: { requiresAdmin: true },
     },
 

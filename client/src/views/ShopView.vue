@@ -109,23 +109,18 @@ const getDiscountPrice = (product) => {
     return Math.round(product.price * (1 - product.discount / 100));
 };
 
-const buy = async (product) => {
+const addToCart = async (product) => {
     showError.value = false;
     errorMessage.value = '';
 
     try {
-        const price = getDiscountPrice(product);
-        const response = await apiService.walletPurchase({
-            currency: product.currency || 'RUB',
-            amount: price,
-            description: product.name
-        });
-        alert('Покупка успешна!');
+        await apiService.addToCart(product.id, 1);
+        alert('Товар добавлен в корзину!');
     } catch (error) {
         if (error && error.error) {
             errorMessage.value = error.error;
         } else {
-            errorMessage.value = 'Не удалось выполнить покупку. Попробуйте ещё раз.';
+            errorMessage.value = 'Не удалось добавить в корзину. Попробуйте ещё раз.';
         }
         showError.value = true;
     }
@@ -167,6 +162,11 @@ onMounted(() => {
                             <i class="bi bi-search"></i>
                         </button>
                     </div>
+                </div>
+                <div class="col-auto">
+                    <router-link to="/cart" class="btn btn-theme position-relative">
+                        <i class="bi bi-cart"></i>
+                    </router-link>
                 </div>
             </div>
 
@@ -276,11 +276,11 @@ onMounted(() => {
                                 </div>
                                 <div class="col-auto px-0">
                                     <button
-                                        @click="buy(product)"
+                                        @click="addToCart(product)"
                                         class="btn btn-sm btn-link btn-square text-color-theme"
                                         :disabled="product.stock === 0"
                                     >
-                                        <i class="bi bi-bag-plus"></i>
+                                        <i class="bi bi-cart-plus"></i>
                                     </button>
                                 </div>
                             </div>

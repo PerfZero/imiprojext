@@ -18,6 +18,9 @@ import { walletRouter } from "./routes/wallet";
 import { productRouter } from "./routes/products";
 import { uploadRouter } from "./routes/upload";
 import { verificationRouter } from "./routes/verification";
+import { cartRouter } from "./routes/cart";
+import { ordersRouter } from "./routes/orders";
+import { couponRouter } from "./routes/coupons";
 import adminRouter from "./routes/admin";
 import { errorHandler } from "./utils/errorHandler";
 
@@ -85,6 +88,9 @@ export function createApp() {
     app.use("/api/products", productRouter);
     app.use("/api/upload", uploadRouter);
     app.use("/api/verification", verificationRouter);
+    app.use("/api/cart", cartRouter);
+    app.use("/api/orders", ordersRouter);
+    app.use("/api/coupons", couponRouter);
     app.use("/api/admin", adminRouter);
 
     app.use(errorHandler);

@@ -8,7 +8,7 @@ import { eq, sql, desc } from "drizzle-orm";
 
 import { AppError } from "../utils/AppError";
 import { services } from "../services";
-import { db, user } from "../db";
+import { db, user, userAddresses } from "../db";
 
 const router = Router();
 
@@ -176,6 +176,126 @@ router.get("/my-referrals", isAuthenticated, async (req, res, next) => {
             })),
             referralTree,
         });
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get("/addresses", isAuthenticated, async (req, res, next) => {
+    try {
+        if (!req.userId) {
+            throw new AppError("User ID not found", 401);
+        }
+        const addresses = await db
+            .select()
+            .from(userAddresses)
+            .where(eq(userAddresses.userId, req.userId))
+            .orderBy(desc(userAddresses.isDefault), desc(userAddresses.createdAt));
+        res.json(addresses);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.post("/addresses", isAuthenticated, async (req, res, next) => {
+    try {
+        if (!req.userId) {
+            throw new AppError("User ID not found", 401);
+        }
+        const { name, phone, city, address, isDefault } = req.body;
+        
+        if (!name || !phone || !city || !address) {
+            throw new AppError("Все поля обязательны", 400);
+        }
+
+        if (isDefault) {
+            await db
+                .update(userAddresses)
+                .set({ isDefault: false })
+                .where(eq(userAddresses.userId, req.userId));
+        }
+
+        const [newAddress] = await db
+            .insert(userAddresses)
+            .values({
+                userId: req.userId,
+                name,
+                phone,
+                city,
+                address,
+                isDefault: isDefault || false,
+            })
+            .returning();
+
+        res.status(201).json(newAddress);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.put("/addresses/:id", isAuthenticated, async (req, res, next) => {
+    try {
+        if (!req.userId) {
+            throw new AppError("User ID not found", 401);
+        }
+        const id = parseInt(req.params.id);
+        const { name, phone, city, address, isDefault } = req.body;
+
+        const [existing] = await db
+            .select()
+            .from(userAddresses)
+            .where(eq(userAddresses.id, id))
+            .limit(1);
+
+        if (!existing || existing.userId !== req.userId) {
+            throw new AppError("Адрес не найден", 404);
+        }
+
+        if (isDefault) {
+            await db
+                .update(userAddresses)
+                .set({ isDefault: false })
+                .where(eq(userAddresses.userId, req.userId));
+        }
+
+        const [updated] = await db
+            .update(userAddresses)
+            .set({
+                name,
+                phone,
+                city,
+                address,
+                isDefault: isDefault || false,
+                updatedAt: Math.floor(Date.now() / 1000),
+            })
+            .where(eq(userAddresses.id, id))
+            .returning();
+
+        res.json(updated);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.delete("/addresses/:id", isAuthenticated, async (req, res, next) => {
+    try {
+        if (!req.userId) {
+            throw new AppError("User ID not found", 401);
+        }
+        const id = parseInt(req.params.id);
+
+        const [existing] = await db
+            .select()
+            .from(userAddresses)
+            .where(eq(userAddresses.id, id))
+            .limit(1);
+
+        if (!existing || existing.userId !== req.userId) {
+            throw new AppError("Адрес не найден", 404);
+        }
+
+        await db.delete(userAddresses).where(eq(userAddresses.id, id));
+        res.json({ success: true });
     } catch (err) {
         next(err);
     }

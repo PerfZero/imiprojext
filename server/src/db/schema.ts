@@ -189,3 +189,108 @@ export const userVerification = sqliteTable("user_verification", {
 });
 
 export type UserVerification = typeof userVerification.$inferSelect;
+
+export const cartItems = sqliteTable(
+    "cart_items",
+    {
+        id: integer("id").primaryKey({ autoIncrement: true }),
+        userId: text("user_id")
+            .notNull()
+            .references(() => users.id, { onDelete: "cascade" }),
+        productId: integer("product_id")
+            .notNull()
+            .references(() => products.id, { onDelete: "cascade" }),
+        quantity: integer("quantity").notNull().default(1),
+        createdAt: integer("created_at")
+            .notNull()
+            .default(sql`(strftime('%s','now'))`),
+        updatedAt: integer("updated_at")
+            .notNull()
+            .default(sql`(strftime('%s','now'))`),
+    },
+    (table) => ({
+        userProductIdx: uniqueIndex("cart_user_product_idx").on(
+            table.userId,
+            table.productId
+        ),
+    })
+);
+
+export type CartItem = typeof cartItems.$inferSelect;
+
+export const orders = sqliteTable("orders", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: text("user_id")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    status: text("status").notNull().default("pending"),
+    totalAmount: real("total_amount").notNull(),
+    currency: text("currency").notNull().default("RUB"),
+    shippingAddress: text("shipping_address"),
+    shippingCity: text("shipping_city"),
+    shippingPhone: text("shipping_phone"),
+    shippingName: text("shipping_name"),
+    comment: text("comment"),
+    createdAt: integer("created_at")
+        .notNull()
+        .default(sql`(strftime('%s','now'))`),
+    updatedAt: integer("updated_at")
+        .notNull()
+        .default(sql`(strftime('%s','now'))`),
+});
+
+export const orderItems = sqliteTable("order_items", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    orderId: integer("order_id")
+        .notNull()
+        .references(() => orders.id, { onDelete: "cascade" }),
+    productId: integer("product_id")
+        .notNull()
+        .references(() => products.id),
+    quantity: integer("quantity").notNull(),
+    price: real("price").notNull(),
+    productName: text("product_name").notNull(),
+    productImage: text("product_image"),
+});
+
+export type Order = typeof orders.$inferSelect;
+export type OrderItem = typeof orderItems.$inferSelect;
+
+export const coupons = sqliteTable("coupons", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    code: text("code").notNull().unique(),
+    discount: real("discount").notNull(),
+    discountType: text("discount_type").notNull().default("percentage"),
+    minAmount: real("min_amount").default(0),
+    maxDiscount: real("max_discount"),
+    usageLimit: integer("usage_limit"),
+    usedCount: integer("used_count").default(0),
+    validFrom: integer("valid_from"),
+    validUntil: integer("valid_until"),
+    isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
+    createdAt: integer("created_at")
+        .notNull()
+        .default(sql`(strftime('%s','now'))`),
+});
+
+export type Coupon = typeof coupons.$inferSelect;
+
+export const userAddresses = sqliteTable("user_addresses", {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    userId: text("user_id")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    phone: text("phone").notNull(),
+    city: text("city").notNull(),
+    address: text("address").notNull(),
+    isDefault: integer("is_default", { mode: "boolean" }).default(false).notNull(),
+    createdAt: integer("created_at")
+        .notNull()
+        .default(sql`(strftime('%s','now'))`),
+    updatedAt: integer("updated_at")
+        .notNull()
+        .default(sql`(strftime('%s','now'))`),
+});
+
+export type UserAddress = typeof userAddresses.$inferSelect;
