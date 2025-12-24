@@ -27,9 +27,15 @@ export function useNotifications() {
             return;
         }
 
-        const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-        const host = window.location.host;
-        const wsUrl = `${protocol}//${host}/socket`;
+        let wsUrl;
+        if (window.Capacitor?.isNativePlatform()) {
+            const apiBaseUrl = 'http://79.174.77.143:3000';
+            wsUrl = apiBaseUrl.replace('http://', 'ws://').replace('https://', 'wss://') + '/socket';
+        } else {
+            const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+            const host = window.location.host;
+            wsUrl = `${protocol}//${host}/socket`;
+        }
         
         console.log("Подключение к WebSocket:", wsUrl);
         ws = new WebSocket(wsUrl);

@@ -23,6 +23,10 @@ export const auth = betterAuth({
         "https://demka.space",
         "http://192.168.31.13:5173",
         "http://localhost:5173",
+        "http://79.174.77.143:3000",
+        "http://79.174.77.143",
+        "http://localhost",
+        "https://localhost",
     ],
     user: {
         fields: {
