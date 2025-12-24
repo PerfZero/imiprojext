@@ -1,4 +1,5 @@
 import { createAuthClient } from "better-auth/vue";
+import { saveSessionToken, getSessionToken, clearSessionToken, isNativePlatform } from "@/utils/sessionStorage";
 
 function getApiBaseUrl() {
     if (import.meta.env.VITE_API_URL) {
@@ -12,7 +13,25 @@ function getApiBaseUrl() {
     return "";
 }
 
-export const authClient = createAuthClient({
+const baseAuthClient = createAuthClient({
     baseURL: getApiBaseUrl(),
     basePath: "/api/auth",
+    fetchOptions: {
+        onSuccess: (ctx: any) => {
+            if (isNativePlatform() && ctx.data?.token) {
+                saveSessionToken(ctx.data.token);
+            }
+        },
+    },
 });
+
+export const authClient = {
+    ...baseAuthClient,
+    signOut: async () => {
+        clearSessionToken();
+        return baseAuthClient.signOut();
+    },
+    getSessionToken,
+    saveSessionToken,
+    clearSessionToken,
+};

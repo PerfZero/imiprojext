@@ -33,9 +33,21 @@ export function createWebSocketServer(server: Server) {
         let token = null;
 
         try {
-            const session = await auth.api.getSession({
+            let session = await auth.api.getSession({
                 headers: fromNodeHeaders(req.headers),
             });
+
+            if (!session) {
+                const url = new URL(req.url || "", `http://${req.headers.host}`);
+                const queryToken = url.searchParams.get("token");
+                if (queryToken) {
+                    session = await auth.api.getSession({
+                        headers: {
+                            cookie: `better-auth.session_token=${queryToken}`,
+                        },
+                    });
+                }
+            }
 
             if (session && session.user) {
                 userId = session.user?.id;

@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { authClient } from "@/lib/auth-client";
 import { z } from "zod";
 import { useRouter } from "vue-router";
+import { saveSessionToken, isNativePlatform } from "@/utils/sessionStorage";
 
 const router = useRouter();
 const { signIn, signUp, useSession } = authClient;
@@ -56,6 +57,10 @@ async function login() {
             },
             onSuccess: (ctx) => {
                 isLoading.value = false;
+                if (isNativePlatform() && ctx.data?.token) {
+                    saveSessionToken(ctx.data.token);
+                    console.log("[Auth] Token saved for mobile app");
+                }
             },
             onError: (ctx) => {
                 serverError.value = ctx.error.message;

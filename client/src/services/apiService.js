@@ -1,5 +1,6 @@
 // apiService.js
 import { API_BASE_URL } from '@/utils/apiConfig.js';
+import { getSessionToken, isNativePlatform } from '@/utils/sessionStorage.js';
 
 class ApiService {
     async request(endpoint, options = {}) {
@@ -9,13 +10,22 @@ class ApiService {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 30000);
 
+        const headers = {
+            "Content-Type": "application/json",
+            ...options.headers,
+        };
+
+        if (isNativePlatform()) {
+            const token = getSessionToken();
+            if (token) {
+                headers["Authorization"] = `Bearer ${token}`;
+            }
+        }
+
         const config = {
             credentials: 'include',
             signal: controller.signal,
-            headers: {
-                "Content-Type": "application/json",
-                ...options.headers,
-            },
+            headers,
             ...options,
         };
         try {

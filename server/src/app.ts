@@ -83,9 +83,25 @@ export function createApp() {
 
     app.all("/api/auth/{*any}", authHandler);
     app.use(async (req, res, next) => {
-        const session = await auth.api.getSession({
+        let session = await auth.api.getSession({
             headers: fromNodeHeaders(req.headers),
         });
+
+        if (!session) {
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                const token = authHeader.substring(7);
+                try {
+                    session = await auth.api.getSession({
+                        headers: {
+                            cookie: `better-auth.session_token=${token}`,
+                        },
+                    });
+                } catch (e) {
+                    console.error("Error getting session from token:", e);
+                }
+            }
+        }
 
         if (session && "user" in session && session.user) {
             req.session = session;

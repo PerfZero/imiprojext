@@ -1,6 +1,7 @@
 // composables/useNotifications.js
 import { ref, onMounted, onUnmounted } from "vue";
 import apiService from "@/services/apiService";
+import { getSessionToken, isNativePlatform } from "@/utils/sessionStorage";
 
 const notifications = ref([]);
 let ws = null;
@@ -28,9 +29,13 @@ export function useNotifications() {
         }
 
         let wsUrl;
-        if (window.Capacitor?.isNativePlatform()) {
+        if (isNativePlatform()) {
             const apiBaseUrl = 'http://79.174.77.143:3000';
+            const token = getSessionToken();
             wsUrl = apiBaseUrl.replace('http://', 'ws://').replace('https://', 'wss://') + '/socket';
+            if (token) {
+                wsUrl += `?token=${encodeURIComponent(token)}`;
+            }
         } else {
             const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
             const host = window.location.host;
