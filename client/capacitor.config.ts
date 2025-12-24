@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'IMI CLUB',
   webDir: 'dist',
   server: {
-    androidScheme: 'https',
+    androidScheme: 'http',
     hostname: 'localhost',
     cleartext: true
   },

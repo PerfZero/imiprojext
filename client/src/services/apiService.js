@@ -19,8 +19,10 @@ class ApiService {
             ...options,
         };
         try {
+            console.log(`[API] Request: ${options.method || 'GET'} ${url}`);
             const response = await fetch(url, config);
             clearTimeout(timeoutId);
+            console.log(`[API] Response: ${response.status} ${response.statusText} for ${url}`);
 
             if (!response.ok) {
                 // Пытаемся получить текст ошибки из ответа сервера
@@ -48,10 +50,18 @@ class ApiService {
         } catch (error) {
             clearTimeout(timeoutId);
             if (error.name === 'AbortError') {
-                console.error("API request timeout:", url);
+                const errorMsg = `[API] TIMEOUT: ${url}`;
+                console.error(errorMsg);
+                console.error("[API] Request took longer than 30 seconds");
                 throw new Error("Превышено время ожидания ответа от сервера");
             }
-            console.error("API request failed:", error, "URL:", url);
+            const errorMsg = `[API] ERROR: ${error.message || error}`;
+            console.error(errorMsg);
+            console.error("[API] URL:", url);
+            console.error("[API] Full error:", error);
+            if (error.stack) {
+                console.error("[API] Stack:", error.stack);
+            }
             throw error;
         }
     }

@@ -43,12 +43,14 @@ export function createApp() {
         "http://192.168.31.13:5173",
         "http://79.174.77.143",
         "http://79.174.77.143:3000",
+        "https://localhost",
+        "http://localhost",
     ];
 
     app.use((req, res, next) => {
         const origin = req.headers.origin;
         const userAgent = req.headers["user-agent"] || "";
-        const isMobileApp = userAgent.includes("CapacitorHttp") || !origin;
+        const isMobileApp = userAgent.includes("CapacitorHttp") || !origin || origin?.includes("localhost");
         
         if (isMobileApp || (origin && allowedOrigins.includes(origin))) {
             if (origin) {
@@ -56,6 +58,8 @@ export function createApp() {
             } else {
                 res.setHeader("Access-Control-Allow-Origin", "*");
             }
+        } else if (origin) {
+            res.setHeader("Access-Control-Allow-Origin", origin);
         }
         res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
