@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import IncomeByLevels from '@/components/IncomeByLevels.vue'
 import MyReferrer from '@/components/MyReferrer.vue'
 import ReferralTree from '@/components/ReferralTree.vue'
@@ -18,17 +18,35 @@ const { user } = useUser();
 const loading = ref(true);
 const referralData = ref<ReferralData | null>(null);
 const incomeByLevel = ref<any[]>([]);
+const userReferralCode = ref<string>('');
 
 const referralLink = computed(() => {
-    if (user.value?.referralCode) {
-        return `${SITE_BASE_URL}/ref/${user.value.referralCode}`;
+    const code = userReferralCode.value || user.value?.referralCode;
+    if (code) {
+        return `${SITE_BASE_URL}/ref/${code}`;
     }
     return '';
 });
 
+const loadUserData = async () => {
+    try {
+        if (!user.value?.referralCode) {
+            const sessionData = await apiService.getSession();
+            if (sessionData?.user?.referralCode) {
+                userReferralCode.value = sessionData.user.referralCode;
+            }
+        } else {
+            userReferralCode.value = user.value.referralCode;
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки данных пользователя:', error);
+    }
+};
+
 const loadData = async () => {
     loading.value = true;
     try {
+        await loadUserData();
         const [referrals, income] = await Promise.all([
             apiService.getMyReferrals(),
             apiService.getIncomeByLevel()
@@ -41,6 +59,12 @@ const loadData = async () => {
         loading.value = false;
     }
 };
+
+watch(() => user.value?.referralCode, (newCode) => {
+    if (newCode && !userReferralCode.value) {
+        userReferralCode.value = newCode;
+    }
+});
 
 const formatDate = (timestamp: any) => {
     if (!timestamp) return "-";
@@ -59,6 +83,10 @@ const formatDate = (timestamp: any) => {
 };
 
 const btnShareClick = () => {
+    if (!referralLink.value) {
+        alert('Реферальная ссылка еще не загружена');
+        return;
+    }
     if (navigator.share) {
         navigator
             .share({
@@ -74,6 +102,10 @@ const btnShareClick = () => {
 };
 
 const btnCopyToClipboardClick = async () => {
+    if (!referralLink.value) {
+        alert('Реферальная ссылка еще не загружена');
+        return;
+    }
     try {
         await navigator.clipboard.writeText(referralLink.value);
         alert('Ссылка скопирована!');
@@ -112,7 +144,11 @@ onMounted(() => {
                                 <p class="text-secondary small mb-3">
                                     Предложите другу присоединиться к нам и заработайте процент от его покупок
                                 </p>
-                                <div class="input-group mb-2">
+                                <div v-if="!referralLink" class="alert alert-info mb-3">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    Загрузка реферальной ссылки...
+                                </div>
+                                <div v-else class="input-group mb-2">
                                     <input 
                                         type="text" 
                                         class="form-control border-theme-1"
@@ -127,7 +163,12 @@ onMounted(() => {
                                         <i class="bi bi-copy"></i> Копировать
                                     </button>
                                 </div>
-                                <button type="button" class="btn btn-outline-info" @click="btnShareClick">
+                                <button 
+                                    v-if="referralLink"
+                                    type="button" 
+                                    class="btn btn-outline-info" 
+                                    @click="btnShareClick"
+                                >
                                     <i class="bi bi-share"></i> Поделиться ссылкой
                                 </button>
                             </div>

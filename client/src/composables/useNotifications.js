@@ -1,7 +1,7 @@
 // composables/useNotifications.js
 import { ref, onMounted, onUnmounted } from "vue";
 import apiService from "@/services/apiService";
-import { getSessionToken, isNativePlatform } from "@/utils/sessionStorage";
+import { getSessionToken, loadSessionToken, isNativePlatform } from "@/utils/sessionStorage";
 
 const notifications = ref([]);
 let ws = null;
@@ -23,7 +23,7 @@ export function useNotifications() {
         subscribers.push(cb);
     };
 
-    const connectWebSocket = () => {
+    const connectWebSocket = async () => {
         if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) {
             return;
         }
@@ -31,10 +31,17 @@ export function useNotifications() {
         let wsUrl;
         if (isNativePlatform()) {
             const apiBaseUrl = 'http://79.174.77.143:3000';
-            const token = getSessionToken();
+            // Убедимся, что токен загружен из Preferences
+            let token = getSessionToken();
+            if (!token) {
+                token = await loadSessionToken();
+            }
+            console.log("[WS] Native platform, token:", token ? token.substring(0, 20) + "..." : "null");
             wsUrl = apiBaseUrl.replace('http://', 'ws://').replace('https://', 'wss://') + '/socket';
             if (token) {
                 wsUrl += `?token=${encodeURIComponent(token)}`;
+            } else {
+                console.warn("[WS] No token available, WebSocket may fail to authenticate");
             }
         } else {
             const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -94,8 +101,8 @@ export function useNotifications() {
                 clearTimeout(reconnectTimeout);
             }
 
-            reconnectTimeout = setTimeout(() => {
-                connectWebSocket();
+            reconnectTimeout = setTimeout(async () => {
+                await connectWebSocket();
             }, RECONNECT_DELAY);
         };
     };
@@ -136,9 +143,9 @@ export function useNotifications() {
         }
     };
 
-    onMounted(() => {
-        loadInitialNotifications();
-        connectWebSocket();
+    onMounted(async () => {
+        await loadInitialNotifications();
+        await connectWebSocket();
     });
 
     onUnmounted(() => {

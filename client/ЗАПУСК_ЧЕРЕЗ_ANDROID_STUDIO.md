@@ -84,3 +84,4 @@ cd android
 - **Ctrl + F9** - Собрать проект
 - **Alt + 6** - Открыть Logcat
 
+
