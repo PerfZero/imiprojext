@@ -4,10 +4,10 @@ import { RouterLink } from 'vue-router';
 import apiService from '@/services/apiService';
 import { formatTimestamp } from '@/utils/formatDateTime';
 import { useNotifications } from '@/composables/useNotifications';
-import { authClient } from '@/lib/auth-client';
+import { useUser } from '@/composables/useUser';
 
 const { onNotify } = useNotifications();
-const session = authClient.useSession();
+const { user } = useUser();
 
 const balances = ref([]);
 const transactions = ref([]);
@@ -79,33 +79,7 @@ const isPositive = (type) => {
     return type === 'deposit' || type === 'mlm_reward' || type === 'convert_in';
 };
 
-const generateCardNumber = (userId, currency, index) => {
-    const seed = `${userId}-${currency}-${index}`;
-    let hash = 0;
-    for (let i = 0; i < seed.length; i++) {
-        const char = seed.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
-    }
-    const absHash = Math.abs(hash);
-    const cardDigits = String(absHash).padStart(12, '0').slice(-12);
-    const cardNumber = `0000 ${cardDigits.slice(0, 4)} ${cardDigits.slice(4, 8)} ${cardDigits.slice(8, 12)}`;
-    return cardNumber;
-};
-
-const generateExpiryDate = (userId, currency, index) => {
-    const seed = `${userId}-${currency}-${index}`;
-    let hash = 0;
-    for (let i = 0; i < seed.length; i++) {
-        const char = seed.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
-    }
-    const absHash = Math.abs(hash);
-    const month = (absHash % 12) + 1;
-    const year = new Date().getFullYear() + 3 + (absHash % 2);
-    return `${String(month).padStart(2, '0')}/${String(year).slice(-2)}`;
-};
+import { generateCardNumber, generateExpiryDate } from '@/utils/cardUtils';
 
 onMounted(async () => {
     await updateBalances();
@@ -163,15 +137,15 @@ onNotify((data) => {
                                                     <p><span class="small opacity-50">IMI CLUB</span><br><span class="">Кредитная карта</span></p>
                                                 </div>
                                             </div>
-                                            <h4 class="fw-normal my-4 my-lg-5">{{ generateCardNumber(session.data?.user?.id || '', balance.currency, index) }}</h4>
+                                            <h4 class="fw-normal my-4 my-lg-5">{{ generateCardNumber(user?.id || '', balance.currency, index) }}</h4>
                                             <div class="row gx-3">
                                                 <div class="col-auto">
                                                     <p class="mb-0 small opacity-50">Срок действия</p>
-                                                    <p>{{ generateExpiryDate(session.data?.user?.id || '', balance.currency, index) }}</p>
+                                                    <p>{{ generateExpiryDate(user?.id || '', balance.currency, index) }}</p>
                                                 </div>
                                                 <div class="col text-end">
                                                     <p class="mb-0 small opacity-50">Держатель карты</p>
-                                                    <p>{{ session.data?.user?.name || 'Пользователь' }}</p>
+                                                    <p>{{ user?.name || 'Пользователь' }}</p>
                                                 </div>
                                             </div>
                                         </div>

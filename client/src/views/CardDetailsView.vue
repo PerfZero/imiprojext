@@ -3,13 +3,13 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, RouterLink } from 'vue-router';
 import { useToast } from '@/composables/useToast';
 import apiService from '@/services/apiService';
-import { authClient } from '@/lib/auth-client';
+import { useUser } from '@/composables/useUser';
 import { formatTimestamp } from '@/utils/formatDateTime';
 import { useNotifications } from '@/composables/useNotifications';
 
 const { showToast } = useToast();
 const route = useRoute();
-const session = authClient.useSession();
+const { user } = useUser();
 const { onNotify } = useNotifications();
 
 const currency = computed(() => String(route.params.currency || 'RUB'));
@@ -22,33 +22,7 @@ watch(() => route.params.currency, () => {
     loadData();
 }, { immediate: false });
 
-const generateCardNumber = (userId, currency, index) => {
-    const seed = `${userId}-${currency}-${index}`;
-    let hash = 0;
-    for (let i = 0; i < seed.length; i++) {
-        const char = seed.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
-    }
-    const absHash = Math.abs(hash);
-    const cardDigits = String(absHash).padStart(12, '0').slice(-12);
-    const cardNumber = `0000 ${cardDigits.slice(0, 4)} ${cardDigits.slice(4, 8)} ${cardDigits.slice(8, 12)}`;
-    return cardNumber;
-};
-
-const generateExpiryDate = (userId, currency, index) => {
-    const seed = `${userId}-${currency}-${index}`;
-    let hash = 0;
-    for (let i = 0; i < seed.length; i++) {
-        const char = seed.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
-    }
-    const absHash = Math.abs(hash);
-    const month = (absHash % 12) + 1;
-    const year = new Date().getFullYear() + 3 + (absHash % 2);
-    return `${String(month).padStart(2, '0')}/${String(year).slice(-2)}`;
-};
+import { generateCardNumber, generateExpiryDate } from '@/utils/cardUtils';
 
 const cardIndex = computed(() => {
     return balances.value.findIndex(b => b.currency === currency.value);
@@ -56,12 +30,12 @@ const cardIndex = computed(() => {
 
 const cardNumber = computed(() => {
     const index = cardIndex.value >= 0 ? cardIndex.value : 0;
-    return generateCardNumber(session.data?.user?.id || '', currency.value, index);
+    return generateCardNumber(user.value?.id || '', currency.value, index);
 });
 
 const expiryDate = computed(() => {
     const index = cardIndex.value >= 0 ? cardIndex.value : 0;
-    return generateExpiryDate(session.data?.user?.id || '', currency.value, index);
+    return generateExpiryDate(user.value?.id || '', currency.value, index);
 });
 
 const sentMoney = computed(() => {
@@ -162,7 +136,7 @@ onNotify((data) => {
                                 </div>
                                 <div class="col text-end">
                                     <p class="mb-0 small opacity-50">Держатель карты</p>
-                                    <p>{{ session.data?.user?.name || 'Пользователь' }}</p>
+                                    <p>{{ user?.name || 'Пользователь' }}</p>
                                 </div>
                             </div>
                         </div>
