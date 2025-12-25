@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { loadSessionToken, getSessionToken, isNativePlatform } from "@/utils/sessionStorage";
 import { API_BASE_URL } from "@/utils/apiConfig";
+import apiService from "@/services/apiService";
 import HomeView from "@/views/HomeView.vue";
 import AboutView from "@/views/AboutView.vue";
 import PartnersView from "@/views/PartnersView.vue";
@@ -360,29 +361,50 @@ router.beforeEach(async (to, from, next) => {
   
   // Проверка для админских страниц
   if (to.meta.requiresAdmin) {
+    console.log('[Router] Admin route detected:', to.path);
     try {
-      const baseUrl = isNativePlatform() ? API_BASE_URL : '';
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-      };
-      if (isNativePlatform() && token) {
-        headers['Authorization'] = `Bearer ${token}`;
+      let session = null;
+      
+      if (isNativePlatform()) {
+        console.log('[Router] Native platform, using token auth');
+        const baseUrl = API_BASE_URL;
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json',
+        };
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        const response = await fetch(`${baseUrl}/api/auth/get-session`, {
+          credentials: 'include',
+          headers,
+        });
+        session = await response.json();
+      } else {
+        console.log('[Router] Web platform, using apiService.getSession()');
+        session = await apiService.getSession();
+        console.log('[Router] Session response:', session);
       }
       
-      const response = await fetch(`${baseUrl}/api/auth/get-session`, {
-        credentials: 'include',
-        headers,
-      });
-      const session = await response.json();
+      console.log('[Router] Admin check - session exists:', !!session);
+      console.log('[Router] Admin check - user exists:', !!session?.user);
+      console.log('[Router] Admin check - role:', session?.user?.role);
+      console.log('[Router] Admin check - full session data:', JSON.stringify(session, null, 2));
       
       if (!session || !session.user) {
+        console.log('[Router] No session or user, redirecting to login');
         return next({ name: "login" });
       }
       
       if (session.user.role !== "admin") {
+        console.log('[Router] User role is not admin:', session.user.role, '- redirecting to dashboard');
         return next({ name: "dashboard" });
       }
+      
+      console.log('[Router] Admin access granted, proceeding to route');
     } catch (error) {
+      console.error('[Router] Error checking admin access:', error);
+      console.error('[Router] Error stack:', error instanceof Error ? error.stack : 'No stack');
       return next({ name: "login" });
     }
   }

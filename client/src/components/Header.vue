@@ -6,8 +6,10 @@ import { useUser, globalClearUser } from "@/composables/useUser";
 const { user, loadUser } = useUser();
 
 // Загружаем пользователя при монтировании
-onMounted(() => {
-    loadUser();
+onMounted(async () => {
+    await loadUser();
+    console.log('[Header] User loaded:', user.value);
+    console.log('[Header] User role:', user.value?.role);
 });
 
 // Обёртка для выхода с очисткой состояния

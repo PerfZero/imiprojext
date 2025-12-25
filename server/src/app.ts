@@ -86,10 +86,18 @@ export function createApp() {
 
     // Кастомный эндпоинт для проверки сессии мобильным приложением
     app.get("/api/auth/get-session", async (req, res, next) => {
+        console.log("[Get-Session] Request headers:", {
+            cookie: req.headers.cookie ? 'present' : 'missing',
+            authorization: req.headers.authorization ? 'present' : 'missing',
+            origin: req.headers.origin,
+        });
+        
         // Сначала пробуем стандартный способ (cookies)
         let session = await auth.api.getSession({
             headers: fromNodeHeaders(req.headers),
         });
+        
+        console.log("[Get-Session] Session from better-auth:", session ? 'found' : 'not found');
         
         // Если не нашли через cookies — пробуем Authorization header
         if (!session) {

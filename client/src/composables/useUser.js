@@ -1,20 +1,26 @@
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { authClient } from '@/lib/auth-client';
 import { isNativePlatform, loadSessionToken, getSessionToken } from '@/utils/sessionStorage';
 import { API_BASE_URL } from '@/utils/apiConfig';
+import apiService from '@/services/apiService';
 
 // Глобальное состояние пользователя
 const user = ref(null);
+const webUser = ref(null);
 const isLoading = ref(false);
 const isInitialized = ref(false);
 
 export function useUser() {
     const session = authClient.useSession();
     
-    // Для веб-версии используем session из better-auth
+    // Для веб-версии используем session из better-auth или загружаем через API
     const currentUser = computed(() => {
         if (!isNativePlatform()) {
-            return session.data?.value?.user || null;
+            const sessionUser = session.data?.value?.user;
+            if (sessionUser && sessionUser.role) {
+                return sessionUser;
+            }
+            return webUser.value || sessionUser || null;
         }
         return user.value;
     });
@@ -23,10 +29,29 @@ export function useUser() {
         return !!currentUser.value;
     });
     
+    // Загрузка данных пользователя для веб-версии через API
+    async function loadWebUser() {
+        try {
+            const sessionData = await apiService.getSession();
+            if (sessionData?.user) {
+                webUser.value = sessionData.user;
+                console.log('[useUser] Web user loaded from API:', sessionData.user.email, 'role:', sessionData.user.role);
+                return sessionData.user;
+            }
+        } catch (error) {
+            console.error('[useUser] Error loading web user:', error);
+        }
+        return null;
+    }
+    
     // Загрузка данных пользователя для мобильного
     async function loadUser() {
         if (!isNativePlatform()) {
-            return session.data?.value?.user;
+            const sessionUser = session.data?.value?.user;
+            if (sessionUser && sessionUser.role) {
+                return sessionUser;
+            }
+            return await loadWebUser();
         }
         
         isLoading.value = true;
@@ -78,6 +103,18 @@ export function useUser() {
     // Инициализация при первом использовании
     if (isNativePlatform() && !isInitialized.value && !isLoading.value) {
         loadUser();
+    }
+    
+    // Для веб-версии следим за изменениями сессии и загружаем через API если нужно
+    if (!isNativePlatform()) {
+        watch(() => session.data?.value?.user, async (newUser) => {
+            if (newUser && !newUser.role) {
+                console.log('[useUser] Session user without role, loading from API');
+                await loadWebUser();
+            } else if (newUser && newUser.role) {
+                webUser.value = newUser;
+            }
+        }, { immediate: true });
     }
     
     return {
