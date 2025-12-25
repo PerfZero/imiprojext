@@ -120,3 +120,4 @@ npm run cap:sync
 Проверьте файл `android/app/src/main/AndroidManifest.xml` на наличие необходимых разрешений.
 
 
+

@@ -26,3 +26,4 @@ export function generateExpiryDate(userId, currency, index) {
     return `${String(month).padStart(2, '0')}/${String(year).slice(-2)}`;
 }
 
+

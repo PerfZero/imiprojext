@@ -85,3 +85,4 @@ cd android
 - **Alt + 6** - Открыть Logcat
 
 
+

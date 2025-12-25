@@ -126,7 +126,6 @@ onNotify((data) => {
                                         'overflow-hidden': index !== 2
                                     }">
                                         <div v-if="index !== 2" class="coverimg h-100 w-100 position-absolute top-0 start-0 z-index-0 opacity-25" style="background-image: url('/assets/img/template/splash01.svg');">
-                                            <img src="/assets/img/template/splash01.svg" alt="" style="display: none;">
                                         </div>
                                         <div class="card-body z-index-1" :class="{ 'rounded': index === 2 }">
                                             <div class="row gx-3 align-items-center mb-2">

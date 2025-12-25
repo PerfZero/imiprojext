@@ -117,7 +117,6 @@ onNotify((data) => {
                 <div class="card adminuiux-card overflow-hidden w-100 bg-theme-1-subtle mb-3 mb-lg-4">
                     <div class="card adminuiux-card bg-theme-1 overflow-hidden w-100">
                         <div class="coverimg h-100 w-100 position-absolute top-0 start-0 z-index-0 opacity-25" style="background-image: url('/assets/img/template/splash01.svg');">
-                            <img src="/assets/img/template/splash01.svg" alt="" style="display: none;">
                         </div>
                         <div class="card-body z-index-1">
                             <div class="row gx-3 align-items-center mb-2">
